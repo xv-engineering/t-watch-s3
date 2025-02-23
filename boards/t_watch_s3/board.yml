@@ -1,0 +1,6 @@
+board:
+  name: t_watch_s3
+  full_name: T-Watch S3
+  vendor: vvvvvvvvvv llc
+  socs:
+  - name: esp32s3

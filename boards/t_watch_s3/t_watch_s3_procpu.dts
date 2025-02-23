@@ -1,0 +1,179 @@
+/*
+ * Copyright (c) 2025 Noah Luskey (noah@vvvvvvvvv.io)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/dts-v1/;
+
+#include <espressif/esp32s3/esp32s3_r8.dtsi>
+#include <espressif/partitions_0x0_amp_8M.dtsi>
+#include "t_watch_s3-pinctrl.dtsi"
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+
+/ {
+	model = "LilyGo T-Watch S3 PROCPU";
+	compatible = "espressif,esp32s3";
+
+	aliases {
+		i2c-0 = &i2c0;
+		watchdog0 = &wdt0;
+		uart-0 = &uart0;
+		backlight = &ledk;
+		haptic = &haptic0;
+		touch = &touch0;
+		accel = &imu0;
+	};
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,console = &usb_serial;
+		zephyr,shell-uart = &usb_serial;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,bt-hci = &esp32_bt_hci;
+		zephyr,display = &display0;
+	};
+
+	lvgl_pointer {
+		status = "okay";
+		compatible = "zephyr,lvgl-pointer-input";
+		input = <&touch0>;
+		swap-xy;
+	};
+
+	pwmleds {
+		status = "okay";
+		compatible = "pwm-leds";
+		ledk: pwm_ledc0_channel0 {
+			label = "PWM BACKLIGHT";
+			pwms = <&ledc0 0 100000 PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	mipi_dbi {
+		status = "okay";
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&spi3>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		dc-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
+		write-only;
+
+		display0: st7789v@0 {
+			compatible = "sitronix,st7789v";
+			status = "okay";
+			mipi-mode = <MIPI_DBI_MODE_SPI_4WIRE>;
+			mipi-max-frequency = <DT_FREQ_M(80)>;
+			reg = <0>;
+			width = <240>;
+			height = <240>;
+			x-offset = <0>;
+			y-offset = <80>;
+			vcom = <0x28>;
+			gctrl = <0x75>;
+			vrhs = <0x1F>;
+			vdvs = <0xC4>;
+			mdac = <0xc8>;
+			gamma = <0x01>;
+			colmod = <0x55>;
+			lcm = <0x0c>;
+			porch-param = [ 0b 0b 00 33 33  ];
+			cmd2en-param = [ 5a 69 02 01  ];
+			pwctrl1-param = [ a4 a1  ];
+			pvgam-param = [ F0 05 0A 06 06 03 2B 32 43 36 11 10 2B 32  ];
+			nvgam-param = [ F0 08 0C 0B 09 24 2B 22 43 38 15 16 2F 37  ];
+			ram-param = [ 00 E0  ];
+			rgb-param = [ CD 08 14  ];
+		};
+	};
+};
+
+&usb_serial {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+
+	pmic: axp2101@34 {
+		status = "okay";
+		compatible = "x-powers,axp2101";
+		reg = <0x34>;
+
+		regulators {
+			status = "okay";
+			compatible = "x-powers,axp2101-regulator";
+
+			lcd_vdd: ALDO2 {
+				regulator-init-microvolt = <3300000>;
+				regulator-boot-on;
+			};
+
+			ldo5: BLDO2 {
+				regulator-init-microvolt = <3300000>;
+				regulator-boot-on;
+			};
+		};
+	};
+
+	haptic0: drv2605@5a {
+		status = "okay";
+		compatible = "ti,drv2605";
+		reg = <0x5a>;
+		actuator-mode = "ERM";
+	};
+
+	imu0: bma423@19 {
+		status = "okay";
+		compatible = "bosch,bma4xx";
+		reg = <0x19>;
+		int1-gpios = <&gpio0 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-names = "default";
+
+	touch0: ft5336@38 {
+		status = "okay";
+		compatible = "focaltech,ft5336";
+		reg = <0x38>;
+		int-gpios = <&gpio0 16 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
+};
+
+&ledc0 {
+	status = "okay";
+	pinctrl-0 = <&ledc0_default>;
+	pinctrl-names = "default";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	channel0@0 {
+		status = "okay";
+		reg = <0x0>;
+		timer = <0>;
+	};
+};
+
+&wdt0 {
+	status = "okay";
+};
+
+&esp32_bt_hci {
+	status = "okay";
+};
+
+&spi3 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-0 = <&spi3_default>;
+	pinctrl-names = "default";
+};

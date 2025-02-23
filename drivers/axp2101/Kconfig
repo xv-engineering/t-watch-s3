@@ -1,0 +1,23 @@
+config AXP2101_INIT_PRIORITY
+	int "AXP2101 driver initialization priority"
+	depends on AXP2101
+	default 85
+	help
+	  Init priority for the AXP2101 driver.
+
+config REGULATOR_AXP2101_INIT_PRIORITY
+    int "AXP2101 regulator driver initialization priority"
+    depends on REGULATOR_AXP2101
+    default 86
+    help
+      Init priority for the AXP2101 regulator driver.
+
+if AXP2101
+module = AXP2101
+module-str = AXP2101
+source "subsys/logging/Kconfig.template.log_config"
+endif
+
+rsource "Kconfig.axp2101"
+
+
