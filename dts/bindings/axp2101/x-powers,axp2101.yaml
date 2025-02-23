@@ -1,0 +1,9 @@
+description: X-Powers AXP2101
+
+compatible: "x-powers,axp2101"
+  
+include: i2c-device.yaml
+
+properties:
+  reg:
+    required: true

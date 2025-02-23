@@ -1,0 +1,25 @@
+# Copyright (c) 2024 Espressif Systems (Shanghai) Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_T_WATCH_S3
+	select SOC_ESP32S3_R8
+	select SOC_ESP32S3_PROCPU if BOARD_T_WATCH_S3_ESP32S3_PROCPU
+	select SOC_ESP32S3_APPCPU if BOARD_T_WATCH_S3_ESP32S3_APPCPU
+
+config T_WATCH_S3_BACKLIGHT_BOOT_ON
+	bool "Enable backlight on boot"
+	default y
+	help
+		Enable backlight on boot.
+
+config T_WATCH_S3_RESET_IMU_HACK_PRIORITY
+	int "Workaround for bma4xx oddness"
+	default 55
+	help
+		Priority for resetting the IMU.
+
+module = T_WATCH_S3
+module-str = t_watch_s3
+source "subsys/logging/Kconfig.template.log_config"
+
+

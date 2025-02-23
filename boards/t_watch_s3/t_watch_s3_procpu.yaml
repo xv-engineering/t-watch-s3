@@ -1,0 +1,7 @@
+identifier: t_watch_s3/esp32s3/procpu
+name: T-Watch S3 PROCPU
+type: mcu
+arch: xtensa
+toolchain:
+  - zephyr
+vendor: espressif
