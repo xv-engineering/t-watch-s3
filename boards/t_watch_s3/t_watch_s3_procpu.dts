@@ -23,6 +23,7 @@
 		haptic = &haptic0;
 		touch = &touch0;
 		accel = &imu0;
+		rtc = &rtc0;
 	};
 
 	chosen {
@@ -132,6 +133,13 @@
 		compatible = "bosch,bma4xx";
 		reg = <0x19>;
 		int1-gpios = <&gpio0 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
+
+	rtc0: pcf8563@51 {
+		status = "okay";
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+		int1-gpios = <&gpio0 17 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	};
 };
 
