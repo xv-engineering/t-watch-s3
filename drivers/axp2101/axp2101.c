@@ -42,6 +42,8 @@ struct axp2101_config
         struct i2c_dt_spec i2c;
         bool button_battery_charge_enable;
         struct gpio_dt_spec int_gpio;
+        uint16_t short_press_key;
+        uint16_t long_press_key;
 };
 
 struct axp2101_data
@@ -86,14 +88,14 @@ static void axp2101_thread(void *d, void *, void *)
                 value = 0;
                 axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &value);
 
-                if (value & AXP2101_IRQ_ENABLE_1_PWRON_SHORT_PRESS_ENABLE_MASK)
+                if ((value & AXP2101_IRQ_ENABLE_1_PWRON_SHORT_PRESS_ENABLE_MASK) && (config->short_press_key != INPUT_KEY_RESERVED))
                 {
-                        input_report_key(data->self, INPUT_KEY_POWER, 1, false, K_NO_WAIT);
+                        input_report_key(data->self, config->short_press_key, 1, false, K_NO_WAIT);
                 }
 
-                if (value & AXP2101_IRQ_ENABLE_1_PWRON_LONG_PRESS_ENABLE_MASK)
+                if ((value & AXP2101_IRQ_ENABLE_1_PWRON_LONG_PRESS_ENABLE_MASK) && (config->long_press_key != INPUT_KEY_RESERVED))
                 {
-                        input_report_key(data->self, INPUT_KEY_BACKSPACE, 2, false, K_NO_WAIT);
+                        input_report_key(data->self, config->long_press_key, 1, false, K_NO_WAIT);
                 }
 
                 axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_2_REG, &value);
@@ -220,7 +222,9 @@ BUILD_ASSERT(CONFIG_AXP2101_INIT_PRIORITY > CONFIG_I2C_INIT_PRIORITY);
         static const struct axp2101_config config##inst = {                                      \
             .i2c = I2C_DT_SPEC_INST_GET(inst),                                                   \
             .button_battery_charge_enable = DT_INST_PROP(inst, button_battery_charge_enable),    \
-            .int_gpio = GPIO_DT_SPEC_INST_GET(inst, int_gpios)};                                 \
+            .int_gpio = GPIO_DT_SPEC_INST_GET(inst, int_gpios),                                  \
+            .short_press_key = DT_INST_PROP_OR(inst, short_press_key, INPUT_KEY_RESERVED),       \
+            .long_press_key = DT_INST_PROP_OR(inst, long_press_key, INPUT_KEY_RESERVED)};        \
         static struct axp2101_data data##inst = {                                                \
             .sem = Z_SEM_INITIALIZER(data##inst.sem, 0, 1),                                      \
             .config = &config##inst,                                                             \

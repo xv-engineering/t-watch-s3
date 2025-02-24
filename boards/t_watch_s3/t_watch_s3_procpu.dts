@@ -124,6 +124,9 @@
 		button-battery-charge-enable;
 		int-gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
+		short-press-key = <INPUT_KEY_MENU>;
+		long-press-key = <INPUT_KEY_POWER>;
+
 		regulators {
 			status = "okay";
 			compatible = "x-powers,axp2101-regulator";
