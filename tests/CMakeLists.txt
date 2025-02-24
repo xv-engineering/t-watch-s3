@@ -13,4 +13,5 @@ target_sources(app PRIVATE
     src/display.c
     src/touch.c
     src/imu.c
+    src/rtc.c
 )
