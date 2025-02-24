@@ -11,3 +11,9 @@ properties:
   button-battery-charge-enable:
     type: boolean
 
+  int-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      GPIO connected to the IRQ pin of the AXP2101
+
