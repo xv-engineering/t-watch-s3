@@ -1,11 +1,27 @@
 #include <zephyr/ztest.h>
 #include <zephyr/drivers/rtc.h>
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
+
+static void zassert_time_equal(const struct rtc_time *time1, const struct rtc_time *time2)
+{
+    zassert_equal(time1->tm_sec, time2->tm_sec, "Seconds do not match (expected %d, got %d)", time1->tm_sec, time2->tm_sec);
+    zassert_equal(time1->tm_min, time2->tm_min, "Minutes do not match (expected %d, got %d)", time1->tm_min, time2->tm_min);
+    zassert_equal(time1->tm_hour, time2->tm_hour, "Hours do not match (expected %d, got %d)", time1->tm_hour, time2->tm_hour);
+    zassert_equal(time1->tm_mday, time2->tm_mday, "Days do not match (expected %d, got %d)", time1->tm_mday, time2->tm_mday);
+    zassert_equal(time1->tm_mon, time2->tm_mon, "Months do not match (expected %d, got %d)", time1->tm_mon, time2->tm_mon);
+    zassert_equal(time1->tm_year, time2->tm_year, "Years do not match (expected %d, got %d)", time1->tm_year, time2->tm_year);
+}
+
 ZTEST(rtc, test_rtc_init)
 {
     const struct device *rtc = DEVICE_DT_GET(DT_ALIAS(rtc));
     zassert_true(device_is_ready(rtc), "RTC device not ready");
 
+    // just make sure seconds is less than 55
+    // because later we check that time is incrementing
+    // for 5 seconds, and we don't want seconds to rollover
     const struct rtc_time time = {
         .tm_sec = 20,
         .tm_min = 30,
@@ -17,25 +33,49 @@ ZTEST(rtc, test_rtc_init)
     int ret = rtc_set_time(rtc, &time);
     zassert_equal(ret, 0, "Failed to set time (%d)", ret);
 
-    // Read back and verify initial time
+    // // Read back and verify initial time
     struct rtc_time time_read;
     ret = rtc_get_time(rtc, &time_read);
     zassert_equal(ret, 0, "Failed to get time (%d)", ret);
-    zassert_equal(time_read.tm_sec, time.tm_sec, "Seconds do not match (expected %d, got %d)", time.tm_sec, time_read.tm_sec);
-    zassert_equal(time_read.tm_min, time.tm_min, "Minutes do not match (expected %d, got %d)", time.tm_min, time_read.tm_min);
-    zassert_equal(time_read.tm_hour, time.tm_hour, "Hours do not match (expected %d, got %d)", time.tm_hour, time_read.tm_hour);
-    zassert_equal(time_read.tm_mday, time.tm_mday, "Days do not match (expected %d, got %d)", time.tm_mday, time_read.tm_mday);
-    zassert_equal(time_read.tm_mon, time.tm_mon, "Months do not match (expected %d, got %d)", time.tm_mon, time_read.tm_mon);
-    zassert_equal(time_read.tm_year, time.tm_year, "Years do not match (expected %d, got %d)", time.tm_year, time_read.tm_year);
+    zassert_time_equal(&time, &time_read);
 
-    while (true)
-    {
-        // read the time over and over every second and print it out
-        ret = rtc_get_time(rtc, &time_read);
-        zassert_equal(ret, 0, "Failed to get time (%d)", ret);
-        printk("Time: %02d:%02d:%02d %02d/%02d/%d\n", time_read.tm_hour, time_read.tm_min, time_read.tm_sec, time_read.tm_mon, time_read.tm_mday, time_read.tm_year);
-        k_sleep(K_SECONDS(1));
-    }
+    // for 5 seconds, read back the time and make sure it's
+    // incrementing by 1 second per second.
+    // (a failure here usually indicuates the coin-cell charging is not enabled
+    // or just that the coin cell is dead)
+    struct rtc_time expected_time = time;
+
+    k_sleep(K_SECONDS(1));
+    expected_time.tm_sec++;
+    ret = rtc_get_time(rtc, &time_read);
+    zassert_equal(ret, 0, "Failed to get time (%d)", ret);
+    zassert_time_equal(&expected_time, &time_read);
+
+    k_sleep(K_SECONDS(1));
+    expected_time.tm_sec++;
+    ret = rtc_get_time(rtc, &time_read);
+    zassert_equal(ret, 0, "Failed to get time (%d)", ret);
+    zassert_time_equal(&expected_time, &time_read);
+
+    k_sleep(K_SECONDS(1));
+    expected_time.tm_sec++;
+    ret = rtc_get_time(rtc, &time_read);
+    zassert_equal(ret, 0, "Failed to get time (%d)", ret);
+    zassert_time_equal(&expected_time, &time_read);
+
+    k_sleep(K_SECONDS(1));
+    expected_time.tm_sec++;
+    ret = rtc_get_time(rtc, &time_read);
+    zassert_equal(ret, 0, "Failed to get time (%d)", ret);
+    zassert_time_equal(&expected_time, &time_read);
+
+    k_sleep(K_SECONDS(1));
+    expected_time.tm_sec++;
+    ret = rtc_get_time(rtc, &time_read);
+    zassert_equal(ret, 0, "Failed to get time (%d)", ret);
+    zassert_time_equal(&expected_time, &time_read);
+
+    ztest_test_pass();
 }
 
 ZTEST_SUITE(rtc, NULL, NULL, NULL, NULL, NULL);

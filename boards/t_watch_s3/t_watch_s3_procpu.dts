@@ -10,6 +10,7 @@
 #include "t_watch_s3-pinctrl.dtsi"
 #include <zephyr/dt-bindings/pwm/pwm.h>
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+#include <zephyr/dt-bindings/regulator/axp2101.h>
 
 / {
 	model = "LilyGo T-Watch S3 PROCPU";
@@ -104,6 +105,7 @@
 		status = "okay";
 		compatible = "x-powers,axp2101";
 		reg = <0x34>;
+		button-battery-charge-enable;
 
 		regulators {
 			status = "okay";

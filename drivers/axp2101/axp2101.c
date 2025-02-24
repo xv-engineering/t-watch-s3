@@ -18,9 +18,14 @@ LOG_MODULE_REGISTER(axp2101, CONFIG_AXP2101_LOG_LEVEL);
 #define AXP2101_CHIP_ID 0x4A
 #define AXP2101_REG_CHIP_ID 0x03U
 
+// Register and bit to enable button battery charging (for RTC)
+#define AXP2101_CHARGER_FUEL_GAUGE_WATCHDOG_CTRL_REG 0x18U
+#define AXP2101_CHARGER_FUEL_GAUGE_WATCHDOG_CTRL_BUTTON_CHARGER_MASK BIT(2)
+
 struct axp2101_config
 {
         struct i2c_dt_spec i2c;
+        bool button_battery_charge_enable;
 };
 
 static int axp2101_init(const struct device *dev)
@@ -50,21 +55,29 @@ static int axp2101_init(const struct device *dev)
                 return -EINVAL;
         }
 
-        // TODO (#11): there are additional settings related to button charging, ADCs,
-        //             and other features that could be configured here. They should be
-        //             added as devicetree properties and implemented as needed.
+        // enable coin battery charging through VBACKUP if requested
+        if (config->button_battery_charge_enable)
+        {
+                ret = i2c_reg_update_byte_dt(&config->i2c, AXP2101_CHARGER_FUEL_GAUGE_WATCHDOG_CTRL_REG, BIT(2), BIT(2));
+                if (ret < 0)
+                {
+                        LOG_ERR("Could not enable coin battery charging (%d)", ret);
+                        return ret;
+                }
+        }
+
         return 0;
 }
 
 // I2C must be initialized before the AXP2101 driver
 BUILD_ASSERT(CONFIG_AXP2101_INIT_PRIORITY > CONFIG_I2C_INIT_PRIORITY);
 
-#define AXP2101_DEFINE(inst)                                                              \
-        static const struct axp2101_config config##inst = {                               \
-            .i2c = I2C_DT_SPEC_INST_GET(inst),                                            \
-        };                                                                                \
-                                                                                          \
-        DEVICE_DT_INST_DEFINE(inst, axp2101_init, NULL, NULL, &config##inst, POST_KERNEL, \
+#define AXP2101_DEFINE(inst)                                                                   \
+        static const struct axp2101_config config##inst = {                                    \
+            .i2c = I2C_DT_SPEC_INST_GET(inst),                                                 \
+            .button_battery_charge_enable = DT_INST_PROP(inst, button_battery_charge_enable)}; \
+                                                                                               \
+        DEVICE_DT_INST_DEFINE(inst, axp2101_init, NULL, NULL, &config##inst, POST_KERNEL,      \
                               CONFIG_AXP2101_INIT_PRIORITY, NULL);
 
 DT_INST_FOREACH_STATUS_OKAY(AXP2101_DEFINE)
