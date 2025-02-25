@@ -26,7 +26,7 @@
 		touch = &touch0;
 		accel = &imu0;
 		rtc = &rtc0;
-		buttons = &buttons; // external button, connected to pmic 'pwron'
+		buttons = &buttons;
 	};
 
 	chosen {
