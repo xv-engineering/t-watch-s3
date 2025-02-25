@@ -17,13 +17,13 @@ properties:
     description: |
       GPIO connected to the IRQ pin of the AXP2101
   
-  short-press-key:
+  short-press-code:
     type: int
     required: false
     description: |
       Key code to report for short press of the power button
       
-  long-press-key:
+  long-press-code:
     type: int
     required: false
     description: |

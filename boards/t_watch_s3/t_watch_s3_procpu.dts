@@ -26,7 +26,8 @@
 		touch = &touch0;
 		accel = &imu0;
 		rtc = &rtc0;
-		button = &button;
+		button0 = &SW7; // external button, connected to pmic 'pwron'
+		button1 = &S1; // internal reset button
 	};
 
 	chosen {
@@ -55,18 +56,14 @@
 		};
 	};
 
-	button: gpio_keys {
+	// internal reset button referred labeled S1 on schematic
+	S1: gpio_keys {
 		status = "okay";
 		compatible = "gpio-keys";
-		// small reset button inside the case, labeled S1 in the schematic
-		S1 {
+		button {
 			gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
 			zephyr,code = <INPUT_BTN_0>;
 		};
-
-		// there is an external button, but it is connected to
-		// the AXP2101, so the AXP2101 driver itself generates
-		// the input events.
 	};
 
 	mipi_dbi {
@@ -117,15 +114,16 @@
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 
-	pmic: axp2101@34 {
+	// external button referred labeled SW7 on schematic
+	pmic: SW7: axp2101@34 {
 		status = "okay";
 		compatible = "x-powers,axp2101";
 		reg = <0x34>;
 		button-battery-charge-enable;
 		int-gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
-		short-press-key = <INPUT_KEY_MENU>;
-		long-press-key = <INPUT_KEY_POWER>;
+		short-press-code = <INPUT_KEY_MENU>;
+		long-press-code = <INPUT_KEY_POWER>;
 
 		regulators {
 			status = "okay";
