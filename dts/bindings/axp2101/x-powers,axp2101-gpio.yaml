@@ -15,6 +15,14 @@ properties:
   
   ngpios:
     const: 1
+  
+  initial-state-high:
+    description: |
+      Because the state of the poweron pin can only be known on
+      transitions, the initial state is unknown. This can result
+      in the first button event being missed. This property allows
+      the initial state to be set to a known value.
+    type: boolean
 
 gpio-cells:
   - pin

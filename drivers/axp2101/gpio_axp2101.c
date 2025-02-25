@@ -296,6 +296,7 @@ static int gpio_axp2101_init(const struct device *dev)
     };                                                                                   \
     static struct gpio_axp2101_data data##inst = {                                       \
         .sem = Z_SEM_INITIALIZER(data##inst.sem, 0, 1),                                  \
+        .raw = DT_INST_PROP(inst, initial_state_high),                                   \
     };                                                                                   \
     K_THREAD_DEFINE(gpio_axp2101_thread_##inst, 1024, gpio_axp2101_thread, &data##inst,  \
                     NULL, NULL, K_PRIO_COOP(CONFIG_GPIO_AXP2101_THREAD_PRIORITY), 0, 0); \
