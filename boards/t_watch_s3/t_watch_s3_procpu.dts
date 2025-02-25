@@ -26,8 +26,7 @@
 		touch = &touch0;
 		accel = &imu0;
 		rtc = &rtc0;
-		button0 = &SW7; // external button, connected to pmic 'pwron'
-		button1 = &S1; // internal reset button
+		buttons = &buttons;
 	};
 
 	chosen {
@@ -57,12 +56,17 @@
 	};
 
 	// internal reset button referred labeled S1 on schematic
-	S1: gpio_keys {
+	buttons: gpio_keys {
 		status = "okay";
 		compatible = "gpio-keys";
-		button {
+		internal {
 			gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
-			zephyr,code = <INPUT_BTN_0>;
+			zephyr,code = <INPUT_BTN_EXTRA>;
+		};
+
+		external {
+			gpios = <&poweron 0 GPIO_ACTIVE_LOW>;
+			zephyr,code = <INPUT_BTN_SIDE>;
 		};
 	};
 
@@ -115,15 +119,21 @@
 	pinctrl-names = "default";
 
 	// external button referred labeled SW7 on schematic
-	pmic: SW7: axp2101@34 {
+	pmic: axp2101@34 {
 		status = "okay";
 		compatible = "x-powers,axp2101";
 		reg = <0x34>;
 		button-battery-charge-enable;
 		int-gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 
-		short-press-code = <INPUT_KEY_MENU>;
-		long-press-code = <INPUT_KEY_POWER>;
+		poweron: gpio {
+			status = "okay";
+			compatible = "x-powers,axp2101-gpio";
+			gpio-controller;
+			ngpios = <1>;
+			#gpio-cells = <2>;
+			initial-state-high;
+		};
 
 		regulators {
 			status = "okay";

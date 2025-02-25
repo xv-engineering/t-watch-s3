@@ -9,9 +9,15 @@ config AXP2101
 config REGULATOR_AXP2101
     bool "X-Powers AXP2101 PMIC regulator driver"
     default y
-    depends on DT_HAS_X_POWERS_AXP2101_ENABLED
+    depends on AXP2101
 	depends on DT_HAS_X_POWERS_AXP2101_REGULATOR_ENABLED
 	select REGULATOR
-    select I2C
     help
       Enable the AXP2101 PMIC regulator driver
+
+config GPIO_AXP2101
+	bool "AXP2101 PMIC GPIO driver"
+	default y
+	depends on AXP2101
+	depends on DT_HAS_X_POWERS_AXP2101_GPIO_ENABLED
+	select GPIO
