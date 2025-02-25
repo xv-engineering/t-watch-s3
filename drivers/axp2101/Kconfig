@@ -19,11 +19,11 @@ config GPIO_AXP2101_INIT_PRIORITY
     help
       Init priority for the AXP2101 GPIO driver.
 
-config AXP2101_THREAD_PRIORITY
-    int "AXP2101 thread priority"
+config GPIO_AXP2101_THREAD_PRIORITY
+    int "AXP2101 GPIO thread priority"
     default 5
     help
-      Priority for the AXP2101 thread.
+      Priority for the AXP2101 GPIO thread.
 
 
 if AXP2101
