@@ -64,10 +64,10 @@
 			zephyr,code = <INPUT_BTN_0>;
 		};
 
-		// external {
-			//     gpios = <&poweron 0 GPIO_ACTIVE_LOW>;
-			//     zephyr,code = <INPUT_BTN_1>;
-		// };
+		external {
+			gpios = <&poweron 0 GPIO_ACTIVE_LOW>;
+			zephyr,code = <INPUT_BTN_1>;
+		};
 	};
 
 	mipi_dbi {
@@ -128,10 +128,10 @@
 
 		poweron: gpio {
 			status = "okay";
-			ngpios = <1>;
-			gpio-controller;
-			#gpio-cells = <2>;
 			compatible = "x-powers,axp2101-gpio";
+			gpio-controller;
+			ngpios = <1>;
+			#gpio-cells = <2>;
 		};
 
 		regulators {
