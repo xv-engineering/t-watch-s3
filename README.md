@@ -40,9 +40,9 @@ The following features are not yet supported/tested:
 - [ ] [LoRaWAN support](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/6)
 > [!NOTE]
 > There is some work on enabling the LoRa Basics Modem. It may be worth waiting to do this.
-- [ ] [external button](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/7)
+- [x] [external button](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/7)
 - [ ] [Infrared LED](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/8)
-- [ ] [Realtime clock](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/9)
+- [x] [Realtime clock](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/9)
 - [ ] [SPI Flash Storage](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/10)
 
 ## Getting Started ##

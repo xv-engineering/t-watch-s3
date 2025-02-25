@@ -11,6 +11,7 @@
 #include <zephyr/dt-bindings/pwm/pwm.h>
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
 #include <zephyr/dt-bindings/regulator/axp2101.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
 	model = "LilyGo T-Watch S3 PROCPU";
@@ -25,6 +26,8 @@
 		touch = &touch0;
 		accel = &imu0;
 		rtc = &rtc0;
+		button0 = &SW7; // external button, connected to pmic 'pwron'
+		button1 = &S1; // internal reset button
 	};
 
 	chosen {
@@ -50,6 +53,16 @@
 		ledk: pwm_ledc0_channel0 {
 			label = "PWM BACKLIGHT";
 			pwms = <&ledc0 0 100000 PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	// internal reset button referred labeled S1 on schematic
+	S1: gpio_keys {
+		status = "okay";
+		compatible = "gpio-keys";
+		button {
+			gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+			zephyr,code = <INPUT_BTN_0>;
 		};
 	};
 
@@ -101,11 +114,16 @@
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 
-	pmic: axp2101@34 {
+	// external button referred labeled SW7 on schematic
+	pmic: SW7: axp2101@34 {
 		status = "okay";
 		compatible = "x-powers,axp2101";
 		reg = <0x34>;
 		button-battery-charge-enable;
+		int-gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+
+		short-press-code = <INPUT_KEY_MENU>;
+		long-press-code = <INPUT_KEY_POWER>;
 
 		regulators {
 			status = "okay";
