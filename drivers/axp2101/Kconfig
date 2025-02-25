@@ -12,6 +12,13 @@ config REGULATOR_AXP2101_INIT_PRIORITY
     help
       Init priority for the AXP2101 regulator driver.
 
+config GPIO_AXP2101_INIT_PRIORITY
+    int "AXP2101 GPIO driver initialization priority"
+    depends on GPIO_AXP2101
+    default 87
+    help
+      Init priority for the AXP2101 GPIO driver.
+
 config AXP2101_THREAD_PRIORITY
     int "AXP2101 thread priority"
     default 5

@@ -26,8 +26,7 @@
 		touch = &touch0;
 		accel = &imu0;
 		rtc = &rtc0;
-		button0 = &SW7; // external button, connected to pmic 'pwron'
-		button1 = &S1; // internal reset button
+		buttons = &buttons; // external button, connected to pmic 'pwron'
 	};
 
 	chosen {
@@ -129,6 +128,9 @@
 
 		poweron: gpio {
 			status = "okay";
+			ngpios = <1>;
+			gpio-controller;
+			#gpio-cells = <2>;
 			compatible = "x-powers,axp2101-gpio";
 		};
 
