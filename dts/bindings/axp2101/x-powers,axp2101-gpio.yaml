@@ -1,0 +1,23 @@
+description: |
+  AXP2101 Poweron GPIO Access
+
+  The AXP2101 has a poweron input that can be used essentially
+  as one additional GPIO input. This binding allows declaration
+  of a GPIO 'port' device that can be used to access this input.
+
+compatible: "x-powers,axp2101-gpio"
+
+include: [gpio-controller.yaml, base.yaml]
+
+properties:
+  "#gpio-cells":
+    const: 2
+  
+  ngpios:
+    const: 1
+
+gpio-cells:
+  - pin
+  - flags
+  
+  

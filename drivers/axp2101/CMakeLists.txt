@@ -6,3 +6,4 @@ zephyr_library_include_directories(include)
 
 zephyr_library_sources_ifdef(CONFIG_AXP2101 axp2101.c)
 zephyr_library_sources_ifdef(CONFIG_REGULATOR_AXP2101 regulator_axp2101.c)
+zephyr_library_sources_ifdef(CONFIG_GPIO_AXP2101 gpio_axp2101.c)

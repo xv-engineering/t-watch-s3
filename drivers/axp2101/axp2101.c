@@ -76,7 +76,7 @@ struct axp2101_data
         }                              \
     } while (0)
 
-static int axp2101_clear_interrupts(const struct i2c_dt_spec *i2c, uint8_t reg, uint8_t *value)
+static int axp2101_clear_interrupt_reg(const struct i2c_dt_spec *i2c, uint8_t reg, uint8_t *value)
 {
     CHECK_OK(i2c_reg_read_byte_dt(i2c, reg, value));
     CHECK_OK(i2c_reg_write_byte_dt(i2c, reg, *value));
@@ -93,10 +93,10 @@ static void axp2101_thread(void *d, void *, void *)
 
         // clear all interrupts, but we only care about the status 1 reg right now
         uint8_t value = 0;
-        axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_0_REG, &value);
+        axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_0_REG, &value);
 
         value = 0;
-        axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &value);
+        axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &value);
 
         if ((value & AXP2101_IRQ_STATUS_1_MASK_PWRON_SHORT_PRESS) && (config->short_press_code != INPUT_KEY_RESERVED))
         {
@@ -110,7 +110,7 @@ static void axp2101_thread(void *d, void *, void *)
             input_report_key(data->self, config->long_press_code, 0, false, K_NO_WAIT);
         }
 
-        axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_2_REG, &value);
+        axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_2_REG, &value);
     }
 }
 
@@ -158,9 +158,9 @@ static int axp2101_init(const struct device *dev)
 
     // clear all pending interrupts
     uint8_t value;
-    CHECK_OK(axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_0_REG, &value));
-    CHECK_OK(axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &value));
-    CHECK_OK(axp2101_clear_interrupts(&config->i2c, AXP2101_IRQ_STATUS_2_REG, &value));
+    CHECK_OK(axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_0_REG, &value));
+    CHECK_OK(axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &value));
+    CHECK_OK(axp2101_clear_interrupt_reg(&config->i2c, AXP2101_IRQ_STATUS_2_REG, &value));
 
     // configure button and register the interrupt callback
     CHECK_OK(gpio_pin_configure_dt(&config->int_gpio, GPIO_INPUT | GPIO_ACTIVE_LOW));
