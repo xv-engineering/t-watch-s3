@@ -3,6 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
+// TODO (#13): The poweron GPIO being forwarded to keycodes really
+// isn't the right way to abstract this in Zephyr. It
+// really is more like a GPIO expander with a single
+// GPIO input, and should be abstracted as a child
+// node on the axp2101 parent node. Not high priority.
+
 #define DT_DRV_COMPAT x_powers_axp2101
 
 #include <errno.h>
