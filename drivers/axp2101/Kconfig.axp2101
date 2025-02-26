@@ -21,3 +21,10 @@ config GPIO_AXP2101
 	depends on AXP2101
 	depends on DT_HAS_X_POWERS_AXP2101_GPIO_ENABLED
 	select GPIO
+
+config CHARGER_AXP2101
+	bool "AXP2101 PMIC charger driver"
+	default y
+	depends on AXP2101
+	depends on DT_HAS_X_POWERS_AXP2101_CHARGER_ENABLED
+	select CHARGER

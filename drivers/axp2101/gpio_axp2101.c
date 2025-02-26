@@ -194,6 +194,8 @@ static void gpio_axp2101_thread(void *d, void *, void *)
 
         // we are only interested in the EDGE interrupt flags. Any other flags
         // are not the responsibility of the GPIO node.
+        const uint8_t flag_mask = AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE |
+                                  AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE;
         uint8_t irq_status;
         int ret = i2c_reg_read_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &irq_status);
         if (ret < 0)
@@ -201,24 +203,20 @@ static void gpio_axp2101_thread(void *d, void *, void *)
             LOG_ERR("Could not read IRQ status: %d", ret);
             continue;
         }
-        if (irq_status & (AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE |
-                          AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE))
+        if (irq_status & flag_mask)
         {
-            LOG_PRINTK("GPIO interrupt\n");
             if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE)
             {
-                LOG_PRINTK("Negative edge\n");
                 data->raw = false;
             }
             if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE)
             {
-                LOG_PRINTK("Positive edge\n");
                 data->raw = true;
             }
         }
 
-        // write back to clear those flags
-        ret = i2c_reg_write_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, irq_status);
+        // clear only the edge flags
+        ret = i2c_reg_write_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, flag_mask);
         if (ret < 0)
         {
             LOG_ERR("Could not clear IRQ status: %d", ret);

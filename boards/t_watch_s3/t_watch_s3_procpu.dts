@@ -135,6 +135,11 @@
 			initial-state-high;
 		};
 
+		charger: charger {
+			status = "okay";
+			compatible = "x-powers,axp2101-charger";
+		};
+
 		regulators {
 			status = "okay";
 			compatible = "x-powers,axp2101-regulator";

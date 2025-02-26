@@ -1,0 +1,7 @@
+# Copyright (c), 2025 Noah Luskey <noah@vvvvvvvvvv.io>
+
+description: X-Powers AXP2101 battery charger
+
+include: battery.yaml
+
+compatible: "x-powers,axp2101-charger"
