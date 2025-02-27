@@ -32,12 +32,6 @@ config GPIO_AXP2101_THREAD_PRIORITY
     help
       Priority for the AXP2101 GPIO thread.
 
-config CHARGER_AXP2101_THREAD_PRIORITY
-    int "AXP2101 charger thread priority"
-    default 5
-    help
-      Priority for the AXP2101 charger thread.
-
 if AXP2101
 module = AXP2101
 module-str = AXP2101

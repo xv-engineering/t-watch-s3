@@ -13,7 +13,7 @@
 
 #define DT_DRV_COMPAT x_powers_axp2101_gpio
 
-LOG_MODULE_REGISTER(gpio_axp2101, CONFIG_GPIO_LOG_LEVEL);
+LOG_MODULE_REGISTER(gpio_axp2101, CONFIG_AXP2101_LOG_LEVEL);
 
 struct gpio_axp2101_config
 {
@@ -280,7 +280,7 @@ static int gpio_axp2101_init(const struct device *dev)
 }
 
 #define GPIO_AXP2101_DEFINE(inst)                                                        \
-    LOG_INSTANCE_REGISTER(gpio_axp2101, inst, CONFIG_GPIO_LOG_LEVEL);                    \
+    LOG_INSTANCE_REGISTER(gpio_axp2101, inst, CONFIG_AXP2101_LOG_LEVEL);                 \
     static const struct gpio_axp2101_config config##inst = {                             \
         .drv_cfg = {                                                                     \
             .port_pin_mask = GPIO_PORT_PIN_MASK_FROM_DT_INST(inst),                      \

@@ -19,7 +19,7 @@
 #define AXP2101_REG_ITERM_CHARGER_SETTING_AND_CONTROL 0x63
 #define AXP2101_REG_CV_CHARGER_VOLTAGE_SETTING 0x64
 
-LOG_MODULE_REGISTER(charger_axp2101, CONFIG_CHARGER_LOG_LEVEL);
+LOG_MODULE_REGISTER(charger_axp2101, CONFIG_AXP2101_LOG_LEVEL);
 
 struct charger_axp2101_config
 {
@@ -194,7 +194,7 @@ axp2101_charger_init(const struct device *dev)
 BUILD_ASSERT(CONFIG_AXP2101_INIT_PRIORITY < CONFIG_CHARGER_AXP2101_INIT_PRIORITY);
 
 #define CHARGER_AXP2101_DEFINE(inst)                                                                        \
-    LOG_INSTANCE_REGISTER(charger_axp2101, inst, CONFIG_CHARGER_LOG_LEVEL);                                 \
+    LOG_INSTANCE_REGISTER(charger_axp2101, inst, CONFIG_AXP2101_LOG_LEVEL);                                 \
     static const struct charger_axp2101_config config##inst = {                                             \
         .i2c = I2C_DT_SPEC_GET(DT_INST_PARENT(inst)),                                                       \
         .precharge_current_microamp = DT_INST_PROP(inst, precharge_current_microamp),                       \
