@@ -16,7 +16,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_instance.h>
 
-LOG_MODULE_REGISTER(regulator_axp2101, CONFIG_REGULATOR_LOG_LEVEL);
+LOG_MODULE_REGISTER(regulator_axp2101, CONFIG_AXP2101_LOG_LEVEL);
 
 // Output control registers
 #define AXP2101_REG_DCDC12345_CONTROL 0x80
@@ -515,7 +515,7 @@ BUILD_ASSERT(CONFIG_REGULATOR_AXP2101_INIT_PRIORITY > CONFIG_AXP2101_INIT_PRIORI
 
 #define REGULATOR_AXP2101_DEFINE(node_id, id, name)                                   \
 	static struct regulator_axp2101_data data_##id;                                   \
-	LOG_INSTANCE_REGISTER(name, node_id, CONFIG_REGULATOR_LOG_LEVEL);                 \
+	LOG_INSTANCE_REGISTER(name, node_id, CONFIG_AXP2101_LOG_LEVEL);                   \
 	static const struct regulator_axp2101_config config_##id = {                      \
 		.common = REGULATOR_DT_COMMON_CONFIG_INIT(node_id),                           \
 		.desc = &name##_desc,                                                         \

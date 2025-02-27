@@ -1,0 +1,20 @@
+# Copyright (c), 2025 Noah Luskey <noah@vvvvvvvvvv.io>
+
+description: X-Powers AXP2101 battery charger
+
+include: battery.yaml
+
+compatible: "x-powers,axp2101-charger"
+
+properties:
+  device-chemistry:
+    required: true
+    const: "lithium-ion"
+  precharge-current-microamp:
+    required: true
+  charge-term-current-microamp:
+    required: true
+  constant-charge-current-max-microamp:
+    required: true
+  constant-charge-voltage-max-microvolt:
+    required: true

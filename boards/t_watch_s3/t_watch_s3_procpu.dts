@@ -27,6 +27,7 @@
 		accel = &imu0;
 		rtc = &rtc0;
 		buttons = &buttons;
+		charger = &charger;
 	};
 
 	chosen {
@@ -133,6 +134,18 @@
 			ngpios = <1>;
 			#gpio-cells = <2>;
 			initial-state-high;
+		};
+
+		charger: charger {
+			status = "okay";
+			compatible = "x-powers,axp2101-charger";
+			device-chemistry = "lithium-ion";
+			precharge-current-microamp = <47000>;
+			charge-term-current-microamp = <14000>;
+			constant-charge-current-max-microamp = <235000>;
+			// the battery is labeled as 3.8v, meaning
+			// the actual max is probably more like 4.35 volts
+			constant-charge-voltage-max-microvolt = <4200000>;
 		};
 
 		regulators {
