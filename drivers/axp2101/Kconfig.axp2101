@@ -28,3 +28,10 @@ config CHARGER_AXP2101
 	depends on AXP2101
 	depends on DT_HAS_X_POWERS_AXP2101_CHARGER_ENABLED
 	select CHARGER
+
+config FUEL_GAUGE_AXP2101
+	bool "AXP2101 PMIC fuel gauge driver"
+	default y
+	depends on AXP2101
+	depends on DT_HAS_X_POWERS_AXP2101_FUEL_GAUGE_ENABLED
+	select FUEL_GAUGE

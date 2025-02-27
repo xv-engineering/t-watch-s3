@@ -26,6 +26,13 @@ config CHARGER_AXP2101_INIT_PRIORITY
     help
       Init priority for the AXP2101 charger driver.
 
+config FUEL_GAUGE_AXP2101_INIT_PRIORITY
+    int "AXP2101 fuel gauge driver initialization priority"
+    depends on FUEL_GAUGE_AXP2101
+    default 86
+    help
+      Init priority for the AXP2101 fuel gauge driver.
+
 config GPIO_AXP2101_THREAD_PRIORITY
     int "AXP2101 GPIO thread priority"
     default 5

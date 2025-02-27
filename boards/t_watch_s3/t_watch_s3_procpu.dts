@@ -28,6 +28,7 @@
 		rtc = &rtc0;
 		buttons = &buttons;
 		charger = &charger;
+		fuel-gauge = &fuel_gauge;
 	};
 
 	chosen {
@@ -146,6 +147,11 @@
 			// the battery is labeled as 3.8v, meaning
 			// the actual max is probably more like 4.35 volts
 			constant-charge-voltage-max-microvolt = <4200000>;
+		};
+
+		fuel_gauge: fuel_gauge {
+			status = "okay";
+			compatible = "x-powers,axp2101-fuel-gauge";
 		};
 
 		regulators {
