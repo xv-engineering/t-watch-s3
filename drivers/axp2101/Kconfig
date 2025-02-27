@@ -15,9 +15,16 @@ config REGULATOR_AXP2101_INIT_PRIORITY
 config GPIO_AXP2101_INIT_PRIORITY
     int "AXP2101 GPIO driver initialization priority"
     depends on GPIO_AXP2101
-    default 87
+    default 86
     help
       Init priority for the AXP2101 GPIO driver.
+
+config CHARGER_AXP2101_INIT_PRIORITY
+    int "AXP2101 charger driver initialization priority"
+    depends on CHARGER_AXP2101
+    default 86
+    help
+      Init priority for the AXP2101 charger driver.
 
 config GPIO_AXP2101_THREAD_PRIORITY
     int "AXP2101 GPIO thread priority"
@@ -25,6 +32,11 @@ config GPIO_AXP2101_THREAD_PRIORITY
     help
       Priority for the AXP2101 GPIO thread.
 
+config CHARGER_AXP2101_THREAD_PRIORITY
+    int "AXP2101 charger thread priority"
+    default 5
+    help
+      Priority for the AXP2101 charger thread.
 
 if AXP2101
 module = AXP2101

@@ -12,6 +12,7 @@
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
 #include <zephyr/dt-bindings/regulator/axp2101.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/battery/battery.h>
 
 / {
 	model = "LilyGo T-Watch S3 PROCPU";
@@ -27,6 +28,7 @@
 		accel = &imu0;
 		rtc = &rtc0;
 		buttons = &buttons;
+		charger = &charger;
 	};
 
 	chosen {
@@ -138,6 +140,13 @@
 		charger: charger {
 			status = "okay";
 			compatible = "x-powers,axp2101-charger";
+			device-chemistry = "lithium-ion";
+			precharge-current-microamp = <47000>;
+			charge-term-current-microamp = <14000>;
+			constant-charge-current-max-microamp = <235000>;
+			// the battery is labeled as 3.8v, meaning
+			// the actual max is probably more like 4.35 volts
+			constant-charge-voltage-max-microvolt = <4200000>;
 		};
 
 		regulators {

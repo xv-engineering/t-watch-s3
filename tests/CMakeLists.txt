@@ -15,4 +15,5 @@ target_sources(app PRIVATE
     src/imu.c
     src/rtc.c
     src/button.c
+    src/charger.c
 )

@@ -3,26 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#define DT_DRV_COMPAT x_powers_axp2101_gpio
-
-#include "reg_axp2101.h"
+#include "axp2101.h"
 #include <stdbool.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/gpio/gpio_utils.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(gpio_axp2101, CONFIG_AXP2101_LOG_LEVEL);
 
-#define CHECK_OK(ret)                  \
-    do                                 \
-    {                                  \
-        if (ret < 0)                   \
-        {                              \
-            LOG_ERR("Error: %d", ret); \
-            return ret;                \
-        }                              \
-    } while (0)
+#define DT_DRV_COMPAT x_powers_axp2101_gpio
+
+LOG_MODULE_REGISTER(gpio_axp2101, CONFIG_GPIO_LOG_LEVEL);
 
 struct gpio_axp2101_config
 {
@@ -30,6 +21,8 @@ struct gpio_axp2101_config
     struct gpio_driver_config drv_cfg;
     struct gpio_dt_spec int_gpio;
     struct i2c_dt_spec i2c;
+
+    LOG_INSTANCE_PTR_DECLARE(log);
 };
 
 struct gpio_axp2101_data
@@ -191,6 +184,7 @@ static void gpio_axp2101_thread(void *d, void *, void *)
     while (1)
     {
         k_sem_take(&data->sem, K_FOREVER);
+        LOG_INST_DBG(config->log, "Interrupt received");
 
         // we are only interested in the EDGE interrupt flags. Any other flags
         // are not the responsibility of the GPIO node.
@@ -200,7 +194,7 @@ static void gpio_axp2101_thread(void *d, void *, void *)
         int ret = i2c_reg_read_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &irq_status);
         if (ret < 0)
         {
-            LOG_ERR("Could not read IRQ status: %d", ret);
+            LOG_INST_ERR(config->log, "Could not read IRQ status: %d", ret);
             continue;
         }
         if (irq_status & flag_mask)
@@ -219,7 +213,7 @@ static void gpio_axp2101_thread(void *d, void *, void *)
         ret = i2c_reg_write_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, flag_mask);
         if (ret < 0)
         {
-            LOG_ERR("Could not clear IRQ status: %d", ret);
+            LOG_INST_ERR(config->log, "Could not clear IRQ status: %d", ret);
             continue;
         }
 
@@ -270,28 +264,30 @@ static int gpio_axp2101_init(const struct device *dev)
     const struct gpio_axp2101_config *config = dev->config;
     data->self = dev;
 
-    CHECK_OK(gpio_pin_configure_dt(&config->int_gpio, GPIO_INPUT | GPIO_ACTIVE_LOW));
-    CHECK_OK(gpio_pin_interrupt_configure_dt(&config->int_gpio, GPIO_INT_EDGE_TO_ACTIVE));
+    CHECK_OK(gpio_pin_configure_dt(&config->int_gpio, GPIO_INPUT | GPIO_ACTIVE_LOW), config->log);
+    CHECK_OK(gpio_pin_interrupt_configure_dt(&config->int_gpio, GPIO_INT_EDGE_TO_ACTIVE), config->log);
     gpio_init_callback(&data->gpio_cb, gpio_axp2101_interrupt_callback, BIT(config->int_gpio.pin));
-    CHECK_OK(gpio_add_callback(config->int_gpio.port, &data->gpio_cb));
+    CHECK_OK(gpio_add_callback(config->int_gpio.port, &data->gpio_cb), config->log);
 
     // and configure the interrupt register for edge detection
     const uint8_t mask =
         AXP2101_IRQ_ENABLE_1_MASK_PWRON_NEGATIVE_EDGE |
         AXP2101_IRQ_ENABLE_1_MASK_PWRON_POSITIVE_EDGE;
-    CHECK_OK(i2c_reg_update_byte_dt(&config->i2c, AXP2101_IRQ_ENABLE_1_REG, mask, mask));
+    CHECK_OK(i2c_reg_update_byte_dt(&config->i2c, AXP2101_IRQ_ENABLE_1_REG, mask, mask), config->log);
 
+    LOG_INST_DBG(config->log, "Initialized");
     return 0;
 }
 
 #define GPIO_AXP2101_DEFINE(inst)                                                        \
+    LOG_INSTANCE_REGISTER(gpio_axp2101, inst, CONFIG_GPIO_LOG_LEVEL);                    \
     static const struct gpio_axp2101_config config##inst = {                             \
         .drv_cfg = {                                                                     \
             .port_pin_mask = GPIO_PORT_PIN_MASK_FROM_DT_INST(inst),                      \
         },                                                                               \
         .int_gpio = GPIO_DT_SPEC_GET(DT_INST_PARENT(inst), int_gpios),                   \
         .i2c = I2C_DT_SPEC_GET(DT_INST_PARENT(inst)),                                    \
-    };                                                                                   \
+        LOG_INSTANCE_PTR_INIT(log, gpio_axp2101, inst)};                                 \
     static struct gpio_axp2101_data data##inst = {                                       \
         .sem = Z_SEM_INITIALIZER(data##inst.sem, 0, 1),                                  \
         .raw = DT_INST_PROP(inst, initial_state_high),                                   \
