@@ -2,10 +2,10 @@
 
 
 > [!CAUTION]
-> **Under active development. Do not use except to experiment/learn.**
+> **Under active development. Do not use for production/consumer devices.**
 
 > [!WARNING] 
-> **By using this module, you accept all responsibility for any damage to property or person. In particular, battery management is not yet validated. I highly recommend removing the battery from your device entirely.**
+> **By using this module, you accept all responsibility for any damage to property or person. In particular, battery management is not deeply validated. I highly recommend removing the battery from your device entirely.**
 
 ![t-watch-s3](./docs/images/t-watch.png)
 
@@ -25,9 +25,9 @@ The following features are currently supported and superficially tested using th
 
 The following features are not yet supported/tested:
 
-- [ ] [battery management](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/11)
-> [!WARNING] 
-> **Be very careful with this, the PMIC may be misconfigured and could overcharge or over-discharge the battery. I strongly suggest removing the battery entirely until the PMIC functionality is validated.**
+- [x] [battery management](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/11)
+> [!CAUTION] 
+> **Battery management has not been validated in depth. It is possible this may over-charge or over-discharge the battery. Catastrophic damage could occur. You accept responsibility for this by using this code.**
 - [ ] [bluetooth](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/3)
 - [ ] [wifi](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/2)
 - [ ] [microphone](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/1)
