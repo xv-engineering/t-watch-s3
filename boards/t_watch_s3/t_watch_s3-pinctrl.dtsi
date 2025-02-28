@@ -5,7 +5,7 @@
  */
 
 #include <zephyr/dt-bindings/pinctrl/esp-pinctrl-common.h>
-#include <dt-bindings/pinctrl/esp32s3-pinctrl.h>
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
 #include <zephyr/dt-bindings/pinctrl/esp32s3-gpio-sigmap.h>
 
 &pinctrl {
@@ -43,6 +43,12 @@
 		group2 {
 			pinmux = <SPIM3_MOSI_GPIO13>;
 			output-low;
+		};
+	};
+
+	rmt_tx_default: rmt_tx_default {
+		group1 {
+			pinmux = <ESP32_PINMUX(2, ESP_NOSIG, ESP_RMT_SIG_OUT0)>;
 		};
 	};
 };

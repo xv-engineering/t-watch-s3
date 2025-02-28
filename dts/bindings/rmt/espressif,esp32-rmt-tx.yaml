@@ -1,0 +1,28 @@
+description: ESP32 Remote Control Tranceiver
+
+compatible: "espressif,esp32-rmt-tx"
+
+include: [pinctrl-device.yaml]
+
+properties:
+  "#address-cells":
+    type: int
+    const: 1
+  "#size-cells":
+    type: int
+    const: 0
+
+child-binding:
+  description: Channel configuration
+  properties:
+    reg:
+      type: int
+      required: true
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+    
+ 
+

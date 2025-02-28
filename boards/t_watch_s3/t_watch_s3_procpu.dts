@@ -26,7 +26,7 @@
 		buttons = &buttons;
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
-		rmt-tx = &rmttx0;
+		infrared = &infrared0;
 	};
 
 	chosen {
@@ -107,9 +107,18 @@
 		};
 	};
 
-	rmttx0: rmt_tx {
+	rmt_tx {
 		status = "okay";
 		compatible = "espressif,esp32-rmt-tx";
+		pinctrl-0 = <&rmt_tx_default>;
+		pinctrl-names = "default";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		infrared0: channel0@0 {
+			status = "okay";
+			reg = <0x0>;
+		};
 	};
 };
 
