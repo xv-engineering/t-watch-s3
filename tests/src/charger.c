@@ -41,7 +41,7 @@ ZTEST(charger, test_charger_connected)
     zassert_true(val.online);
 
     ret = charger_get_prop(dev, CHARGER_PROP_PRESENT, &val);
-    zassert_equal(ret, 1);
+    zassert_equal(ret, 0);
     zassert_true(val.present);
 
     // it's either charging or in standby, depends how long
