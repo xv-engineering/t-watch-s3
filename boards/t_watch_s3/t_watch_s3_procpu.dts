@@ -26,6 +26,7 @@
 		buttons = &buttons;
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
+		rmt = &rmt0;
 	};
 
 	chosen {
@@ -104,6 +105,11 @@
 			ram-param = [ 00 E0  ];
 			rgb-param = [ CD 08 14  ];
 		};
+	};
+
+	rmt0: rmt {
+		status = "okay";
+		compatible = "espressif,esp32-rmt";
 	};
 };
 

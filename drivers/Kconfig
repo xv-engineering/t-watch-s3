@@ -1,3 +1,4 @@
 menu "Drivers"
 rsource "axp2101/Kconfig"
+rsource "rmt/Kconfig"
 endmenu
