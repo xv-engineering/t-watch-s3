@@ -1,4 +1,5 @@
 #include <zephyr/kernel.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/rmt_tx.h>
 #include <zephyr/logging/log.h>
@@ -10,6 +11,7 @@ LOG_MODULE_DECLARE(rmt_tx_esp32, CONFIG_RMT_TX_LOG_LEVEL);
 struct rmt_tx_esp32_channel_config
 {
     const struct device *parent;
+    const struct gpio_dt_spec gpio;
     uint8_t channel;
 };
 
@@ -32,6 +34,9 @@ static int rmt_tx_esp32_channel_init(const struct device *dev)
         LOG_ERR("Parent device not ready");
         return -ENODEV;
     }
+
+    // configure the gpio as an output
+
     return 0;
 }
 
@@ -42,6 +47,7 @@ BUILD_ASSERT(CONFIG_RMT_TX_CHANNEL_INIT_PRIORITY >= CONFIG_RMT_TX_INIT_PRIORITY)
     BUILD_ASSERT(DT_REG_ADDR(node) < 4);                                         \
     static const struct rmt_tx_esp32_channel_config config##node = {             \
         .parent = DEVICE_DT_GET(DT_PARENT(node)),                                \
+        .gpio = GPIO_DT_SPEC_GET(node, gpios),                                   \
         .channel = DT_REG_ADDR(node),                                            \
     };                                                                           \
     DEVICE_DT_DEFINE(node, rmt_tx_esp32_channel_init, NULL, NULL, &config##node, \

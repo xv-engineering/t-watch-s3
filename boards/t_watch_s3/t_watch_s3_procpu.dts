@@ -26,7 +26,7 @@
 		buttons = &buttons;
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
-		infrared = &infrared0;
+		infrared = &infrared;
 	};
 
 	chosen {
@@ -115,9 +115,10 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		infrared0: channel0@0 {
+		infrared: channel0@0 {
 			status = "okay";
 			reg = <0x0>;
+			gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
 		};
 	};
 };

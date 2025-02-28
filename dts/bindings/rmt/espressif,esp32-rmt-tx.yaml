@@ -23,6 +23,11 @@ child-binding:
         - 1
         - 2
         - 3
-    
- 
+  
+    gpios:
+      type: phandle-array
+      required: true
+      description: |
+        GPIO pin used to transmit the signal
+  
 
