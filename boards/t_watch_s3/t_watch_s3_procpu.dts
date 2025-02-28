@@ -107,9 +107,10 @@
 		};
 	};
 
-	rmt_tx {
+	rmt_tx@60016000 {
 		status = "okay";
 		compatible = "espressif,esp32-rmt-tx";
+		reg = <0x60016000 DT_SIZE_K(4)>;
 		pinctrl-0 = <&rmt_tx_default>;
 		pinctrl-names = "default";
 		#address-cells = <1>;
@@ -133,7 +134,6 @@
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 
-	// external button referred labeled SW7 on schematic
 	pmic: axp2101@34 {
 		status = "okay";
 		compatible = "x-powers,axp2101";
