@@ -3,6 +3,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/rmt_tx.h>
 #include <zephyr/logging/log.h>
+#include <hal/rmt_ll.h>
 
 LOG_MODULE_DECLARE(rmt_tx_esp32, CONFIG_RMT_TX_LOG_LEVEL);
 
@@ -22,8 +23,15 @@ static int rmt_tx_esp32_set_carrier(const struct device *dev, bool carrier_en,
     return 0;
 }
 
+static int rmt_tx_esp32_transmit(const struct device *dev, const struct rmt_symbol *symbols,
+                                 size_t num_symbols, k_timeout_t timeout)
+{
+    return 0;
+}
+
 static struct rmt_tx_driver_api rmt_tx_esp32_driver_api = {
     .set_carrier = rmt_tx_esp32_set_carrier,
+    .transmit = rmt_tx_esp32_transmit,
 };
 
 static int rmt_tx_esp32_channel_init(const struct device *dev)
