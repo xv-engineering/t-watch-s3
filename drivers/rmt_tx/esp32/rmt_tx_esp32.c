@@ -28,6 +28,21 @@ struct rmt_tx_esp32_data
     rmt_hal_context_t hal;
 };
 
+int periph_rmt_tx_esp32_set_carrier(const struct device *dev, uint8_t channel, bool carrier_en,
+                                    k_timeout_t high_duration, k_timeout_t low_duration,
+                                    rmt_tx_carrier_level_t carrier_level)
+{
+    // TODO: continue implementation here.
+    return -ENOTSUP;
+}
+
+int periph_rmt_tx_esp32_transmit(const struct device *dev, uint8_t channel, const struct rmt_symbol *symbols,
+                                 size_t num_symbols, k_timeout_t timeout)
+{
+    // TODO: continue implementation here.
+    return -ENOTSUP;
+}
+
 static void IRAM_ATTR rmt_tx_esp32_isr(void *arg)
 {
     __maybe_unused const struct device *dev = (const struct device *)arg;
@@ -67,6 +82,11 @@ static int rmt_tx_esp32_init(const struct device *dev)
                          rmt_tx_esp32_isr,
                          (void *)dev,
                          NULL);
+    if (ret < 0)
+    {
+        LOG_ERR("Failed to allocate RMT TX interrupt");
+        return ret;
+    }
 
     // this function internally hardcodes the RMT peripheral address.
     // That's fine, but just for ultimate correctness the RMT address
@@ -78,6 +98,8 @@ static int rmt_tx_esp32_init(const struct device *dev)
         LOG_ERR("RMT peripheral address mismatch");
         return -EINVAL;
     }
+
+    // TODO: continue implementation here.
 
     return 0;
 }

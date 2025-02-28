@@ -1,3 +1,4 @@
+#include "rmt_tx_esp32.h"
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/devicetree.h>
@@ -19,13 +20,15 @@ static int rmt_tx_esp32_set_carrier(const struct device *dev, bool carrier_en,
                                     k_timeout_t high_duration, k_timeout_t low_duration,
                                     rmt_tx_carrier_level_t carrier_level)
 {
-    return 0;
+    const struct rmt_tx_esp32_channel_config *config = dev->config;
+    return periph_rmt_tx_esp32_set_carrier(config->parent, config->channel, carrier_en, high_duration, low_duration, carrier_level);
 }
 
 static int rmt_tx_esp32_transmit(const struct device *dev, const struct rmt_symbol *symbols,
                                  size_t num_symbols, k_timeout_t timeout)
 {
-    return 0;
+    const struct rmt_tx_esp32_channel_config *config = dev->config;
+    return periph_rmt_tx_esp32_transmit(config->parent, config->channel, symbols, num_symbols, timeout);
 }
 
 static struct rmt_tx_driver_api rmt_tx_esp32_driver_api = {
@@ -37,8 +40,7 @@ static int rmt_tx_esp32_channel_init(const struct device *dev)
 {
     const struct rmt_tx_esp32_channel_config *config = dev->config;
 
-    // parent device handles the initialization
-    // of the overall RMT peripheral
+    // parent device handles the initialization of the overall RMT peripheral
     if (!device_is_ready(config->parent))
     {
         LOG_ERR("Parent device not ready");
@@ -52,6 +54,10 @@ static int rmt_tx_esp32_channel_init(const struct device *dev)
         LOG_ERR("Failed to configure GPIO pin %d", config->gpio.pin);
         return ret;
     }
+
+    // TODO: validate that this is actually all of the initialization
+    // necessary per channel. The parent device is in charge of the
+    // overall RMT peripheral.
 
     return 0;
 }
