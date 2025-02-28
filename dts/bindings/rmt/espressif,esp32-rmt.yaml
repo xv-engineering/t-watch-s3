@@ -1,7 +1,5 @@
 description: ESP32 Remote Control Tranceiver
 
-compatible: "espressif,esp32-rmt"
+compatible: "espressif,esp32-rmt-tx"
 
 include: base.yaml
-
-# TODO: properties

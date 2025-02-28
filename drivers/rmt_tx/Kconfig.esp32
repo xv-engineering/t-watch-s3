@@ -1,0 +1,5 @@
+config RMT_TX_ESP32
+    bool "ESP32 RMT TX driver"
+    default y
+    depends on DT_HAS_ESPRESSIF_ESP32_RMT_TX_ENABLED
+    depends on RMT_TX

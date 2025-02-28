@@ -26,7 +26,7 @@
 		buttons = &buttons;
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
-		rmt = &rmt0;
+		rmt-tx = &rmttx0;
 	};
 
 	chosen {
@@ -107,9 +107,9 @@
 		};
 	};
 
-	rmt0: rmt {
+	rmttx0: rmt_tx {
 		status = "okay";
-		compatible = "espressif,esp32-rmt";
+		compatible = "espressif,esp32-rmt-tx";
 	};
 };
 
