@@ -5,6 +5,9 @@
 #include <zephyr/init.h>
 #include <zephyr/drivers/interrupt_controller/intc_esp32.h>
 
+#include <hal/rmt_hal.h>
+#include <hal/rmt_ll.h>
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rmt_tx_esp32, CONFIG_RMT_TX_LOG_LEVEL);
 
@@ -20,6 +23,11 @@ struct rmt_tx_esp32_config
     int irq_flags;
 };
 
+struct rmt_tx_esp32_data
+{
+    rmt_hal_context_t hal;
+};
+
 static void IRAM_ATTR rmt_tx_esp32_isr(void *arg)
 {
     __maybe_unused const struct device *dev = (const struct device *)arg;
@@ -31,6 +39,7 @@ static void IRAM_ATTR rmt_tx_esp32_isr(void *arg)
 static int rmt_tx_esp32_init(const struct device *dev)
 {
     const struct rmt_tx_esp32_config *config = dev->config;
+    struct rmt_tx_esp32_data *data = dev->data;
     int ret = pinctrl_apply_state(config->pcfg, PINCTRL_STATE_DEFAULT);
     if (ret < 0)
     {
@@ -59,11 +68,25 @@ static int rmt_tx_esp32_init(const struct device *dev)
                          (void *)dev,
                          NULL);
 
+    // this function internally hardcodes the RMT peripheral address.
+    // That's fine, but just for ultimate correctness the RMT address
+    // is compared to the address from the devicetree too.
+    void *original_address = data->hal.regs;
+    rmt_hal_init(&data->hal);
+    if (original_address != data->hal.regs)
+    {
+        LOG_ERR("RMT peripheral address mismatch");
+        return -EINVAL;
+    }
+
     return 0;
 }
 
 #define RMT_TX_ESP32_DEFINE(inst)                                                          \
     PINCTRL_DT_DEFINE(DT_DRV_INST(inst));                                                  \
+    static struct rmt_tx_esp32_data data##inst = {                                         \
+        .hal = {.regs = (rmt_dev_t *)DT_REG_ADDR(DT_DRV_INST(inst))},                      \
+    };                                                                                     \
     static const struct rmt_tx_esp32_config config##inst = {                               \
         .pcfg = PINCTRL_DT_DEV_CONFIG_GET(DT_DRV_INST(inst)),                              \
         .clock_dev = DEVICE_DT_GET(DT_CLOCKS_CTLR(DT_DRV_INST(inst))),                     \
@@ -71,7 +94,7 @@ static int rmt_tx_esp32_init(const struct device *dev)
         .irq_source = DT_IRQ_BY_IDX(DT_DRV_INST(inst), 0, irq),                            \
         .irq_priority = DT_IRQ_BY_IDX(DT_DRV_INST(inst), 0, priority),                     \
         .irq_flags = DT_IRQ_BY_IDX(DT_DRV_INST(inst), 0, flags)};                          \
-    DEVICE_DT_INST_DEFINE(inst, rmt_tx_esp32_init, NULL, NULL, &config##inst,              \
+    DEVICE_DT_INST_DEFINE(inst, rmt_tx_esp32_init, NULL, &data##inst, &config##inst,       \
                           POST_KERNEL, CONFIG_RMT_TX_INIT_PRIORITY, NULL);
 
 DT_INST_FOREACH_STATUS_OKAY(RMT_TX_ESP32_DEFINE)
