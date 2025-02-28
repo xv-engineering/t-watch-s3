@@ -13,6 +13,10 @@ properties:
   "#size-cells":
     type: int
     const: 0
+  interrupts:
+    required: true
+  interrupt-parent:
+    required: true
 
 child-binding:
   description: Channel configuration

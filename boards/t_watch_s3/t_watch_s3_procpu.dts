@@ -115,6 +115,9 @@
 		pinctrl-names = "default";
 		#address-cells = <1>;
 		#size-cells = <0>;
+		clocks = <&rtc ESP32_RMT_MODULE>;
+		interrupts = <RMT_INTR_SOURCE IRQ_DEFAULT_PRIORITY 0>;
+		interrupt-parent = <&intc>;
 
 		infrared: channel0@0 {
 			status = "okay";
