@@ -7,7 +7,8 @@ config RMT_TX_INIT_PRIORITY
 
 rsource "Kconfig.esp32"
 
-backend = RMT_TX
-backend-str = rmt_tx
-source "subsys/logging/Kconfig.template.log_format_config"
-
+if RMT_TX
+module = RMT_TX
+module-str = rmt_tx
+source "subsys/logging/Kconfig.template.log_config"
+endif

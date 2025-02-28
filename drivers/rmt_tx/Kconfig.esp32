@@ -3,3 +3,8 @@ config RMT_TX_ESP32
     default y
     depends on DT_HAS_ESPRESSIF_ESP32_RMT_TX_ENABLED
     depends on RMT_TX
+
+config RMT_TX_CHANNEL_INIT_PRIORITY
+    int "RMT TX channel initialization priority"
+    default 80
+    depends on RMT_TX
