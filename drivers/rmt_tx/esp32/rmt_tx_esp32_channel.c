@@ -16,6 +16,7 @@ struct rmt_tx_esp32_channel_config
     const struct device *parent;
     const struct gpio_dt_spec gpio;
     uint8_t channel;
+    bool invert_out;
 };
 
 static int rmt_tx_esp32_set_carrier(const struct device *dev, bool carrier_en,
@@ -81,6 +82,7 @@ BUILD_ASSERT(CONFIG_RMT_TX_CHANNEL_INIT_PRIORITY >= CONFIG_RMT_TX_INIT_PRIORITY)
         .parent = DEVICE_DT_GET(DT_PARENT(node)),                                \
         .gpio = GPIO_DT_SPEC_GET(node, gpios),                                   \
         .channel = DT_REG_ADDR(node),                                            \
+        .invert_out = DT_PROP(node, invert_out),                                 \
     };                                                                           \
     DEVICE_DT_DEFINE(node, rmt_tx_esp32_channel_init, NULL, NULL, &config##node, \
                      POST_KERNEL, CONFIG_RMT_TX_CHANNEL_INIT_PRIORITY,           \

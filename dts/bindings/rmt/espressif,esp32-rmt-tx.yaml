@@ -35,5 +35,10 @@ child-binding:
       required: true
       description: |
         GPIO pin used to transmit the signal
+    
+    invert-out:
+      type: boolean
+      description: |
+        Invert the output signal
   
 
