@@ -48,6 +48,7 @@ ZTEST(charger, test_charger_connected)
     // things have been plugged in, but it's definitely
     // not discharging since we're plugged in to a supply.
     ret = charger_get_prop(dev, CHARGER_PROP_STATUS, &val);
+    LOG_INF("charger status: %d", val.status);
     zassert_equal(ret, 0);
     zassert_not_equal(val.status, CHARGER_STATUS_DISCHARGING);
 }

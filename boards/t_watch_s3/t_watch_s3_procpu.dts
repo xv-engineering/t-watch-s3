@@ -162,7 +162,7 @@
 			constant-charge-current-max-microamp = <235000>;
 			// the battery is labeled as 3.8v, meaning
 			// the actual max is probably more like 4.35 volts
-			constant-charge-voltage-max-microvolt = <4200000>;
+			constant-charge-voltage-max-microvolt = <4000000>;
 		};
 
 		fuel_gauge: fuel_gauge {

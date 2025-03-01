@@ -1,9 +1,11 @@
-#include "rmt_tx_esp32.h"
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/rmt_tx.h>
 #include <zephyr/logging/log.h>
+
+#include <hal/rmt_hal.h>
+#include <hal/rmt_ll.h>
 
 LOG_MODULE_DECLARE(rmt_tx_esp32, CONFIG_RMT_TX_LOG_LEVEL);
 
@@ -21,14 +23,22 @@ static int rmt_tx_esp32_set_carrier(const struct device *dev, bool carrier_en,
                                     rmt_tx_carrier_level_t carrier_level)
 {
     const struct rmt_tx_esp32_channel_config *config = dev->config;
-    return periph_rmt_tx_esp32_set_carrier(config->parent, config->channel, carrier_en, high_duration, low_duration, carrier_level);
+    rmt_hal_context_t *hal = (rmt_hal_context_t *)config->parent->data;
+    rmt_dev_t *rmt_dev = (rmt_dev_t *)hal->regs;
+    LOG_DBG("rmt_dev: %p", rmt_dev);
+
+    return -ENOTSUP;
 }
 
 static int rmt_tx_esp32_transmit(const struct device *dev, const struct rmt_symbol *symbols,
                                  size_t num_symbols, k_timeout_t timeout)
 {
     const struct rmt_tx_esp32_channel_config *config = dev->config;
-    return periph_rmt_tx_esp32_transmit(config->parent, config->channel, symbols, num_symbols, timeout);
+    rmt_hal_context_t *hal = (rmt_hal_context_t *)config->parent->data;
+    rmt_dev_t *rmt_dev = (rmt_dev_t *)hal->regs;
+    LOG_DBG("rmt_dev: %p", rmt_dev);
+
+    return -ENOTSUP;
 }
 
 static struct rmt_tx_driver_api rmt_tx_esp32_driver_api = {

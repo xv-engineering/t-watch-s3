@@ -5,8 +5,8 @@
 #include <zephyr/init.h>
 #include <zephyr/drivers/interrupt_controller/intc_esp32.h>
 
-#include <hal/rmt_hal.h>
 #include <hal/rmt_ll.h>
+#include <hal/rmt_hal.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rmt_tx_esp32, CONFIG_RMT_TX_LOG_LEVEL);
@@ -27,28 +27,19 @@ struct rmt_tx_esp32_data
 {
     rmt_hal_context_t hal;
 };
-
-int periph_rmt_tx_esp32_set_carrier(const struct device *dev, uint8_t channel, bool carrier_en,
-                                    k_timeout_t high_duration, k_timeout_t low_duration,
-                                    rmt_tx_carrier_level_t carrier_level)
-{
-    // TODO: continue implementation here.
-    return -ENOTSUP;
-}
-
-int periph_rmt_tx_esp32_transmit(const struct device *dev, uint8_t channel, const struct rmt_symbol *symbols,
-                                 size_t num_symbols, k_timeout_t timeout)
-{
-    // TODO: continue implementation here.
-    return -ENOTSUP;
-}
+// the data must be exactly castable to a rmt_hal_context_t type
+// (the channel subdevice relies on this).
+BUILD_ASSERT(offsetof(struct rmt_tx_esp32_data, hal) == 0);
 
 static void IRAM_ATTR rmt_tx_esp32_isr(void *arg)
 {
-    __maybe_unused const struct device *dev = (const struct device *)arg;
+    const struct device *dev = (const struct device *)arg;
     __maybe_unused const struct rmt_tx_esp32_config *config = dev->config;
+    struct rmt_tx_esp32_data *data = dev->data;
+    rmt_hal_context_t *hal = &data->hal;
+    rmt_dev_t *rmt_dev = hal->regs;
 
-    LOG_PRINTK("RMT TX ISR\n");
+    LOG_DBG("rmt_tx_esp32_isr:  regs=%p", rmt_dev);
 }
 
 static int rmt_tx_esp32_init(const struct device *dev)
@@ -107,7 +98,7 @@ static int rmt_tx_esp32_init(const struct device *dev)
 #define RMT_TX_ESP32_DEFINE(inst)                                                          \
     PINCTRL_DT_DEFINE(DT_DRV_INST(inst));                                                  \
     static struct rmt_tx_esp32_data data##inst = {                                         \
-        .hal = {.regs = (rmt_dev_t *)DT_REG_ADDR(DT_DRV_INST(inst))},                      \
+        .hal = {.regs = (rmt_soc_handle_t)DT_REG_ADDR(DT_DRV_INST(inst))},                 \
     };                                                                                     \
     static const struct rmt_tx_esp32_config config##inst = {                               \
         .pcfg = PINCTRL_DT_DEV_CONFIG_GET(DT_DRV_INST(inst)),                              \
