@@ -12,6 +12,7 @@
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
 #include <zephyr/dt-bindings/regulator/axp2101.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/lora/sx126x.h>
 
 / {
 	model = "LilyGo T-Watch S3 PROCPU";
@@ -26,6 +27,7 @@
 		buttons = &buttons;
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
+		lora = &lora;
 	};
 
 	chosen {
@@ -72,7 +74,7 @@
 	mipi_dbi {
 		status = "okay";
 		compatible = "zephyr,mipi-dbi-spi";
-		spi-dev = <&spi3>;
+		spi-dev = <&spi2>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		dc-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
@@ -164,6 +166,11 @@
 				regulator-init-microvolt = <3300000>;
 				regulator-boot-on;
 			};
+
+			gps_vdd: LDO4 {
+				regulator-init-microvolt = <3300000>;
+				regulator-boot-on;
+			};
 		};
 	};
 
@@ -224,10 +231,38 @@
 	status = "okay";
 };
 
+&spi2 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-0 = <&spi2_default>;
+	pinctrl-names = "default";
+};
+
 &spi3 {
 	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
 	pinctrl-0 = <&spi3_default>;
 	pinctrl-names = "default";
+
+	lora: sx1262@0 {
+		status = "okay";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(80)>;
+		compatible = "semtech,sx1262";
+		reset-gpios = <&gpio0 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		busy-gpios = <&gpio0 7 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+		dio1-gpios = <&gpio0 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		dio3-tcxo-voltage = <SX126X_DIO3_TCXO_3V3>;
+		tcxo-power-startup-delay-ms = <100>; // TODO: validate
+	};
 };
+
+// &gpio0 {
+	//     sx1262-dio3-hog {
+		//         gpio-hog;
+		//         gpios = <6 GPIO_ACTIVE_HIGH>;
+		//         output-high;
+	//     };
+// };
