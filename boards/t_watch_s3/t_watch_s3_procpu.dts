@@ -167,7 +167,7 @@
 				regulator-boot-on;
 			};
 
-			gps_vdd: LDO4 {
+			gps_vdd: ALDO4 {
 				regulator-init-microvolt = <3300000>;
 				regulator-boot-on;
 			};
@@ -248,21 +248,22 @@
 
 	lora: sx1262@0 {
 		status = "okay";
-		reg = <0>;
-		spi-max-frequency = <DT_FREQ_M(80)>;
 		compatible = "semtech,sx1262";
-		reset-gpios = <&gpio0 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-		busy-gpios = <&gpio0 7 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
-		dio1-gpios = <&gpio0 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(10)>;
+		reset-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+		dio1-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
 		dio3-tcxo-voltage = <SX126X_DIO3_TCXO_3V3>;
-		tcxo-power-startup-delay-ms = <100>; // TODO: validate
+		tcxo-power-startup-delay-ms = <5>;
 	};
 };
 
-// &gpio0 {
-	//     sx1262-dio3-hog {
-		//         gpio-hog;
-		//         gpios = <6 GPIO_ACTIVE_HIGH>;
-		//         output-high;
-	//     };
-// };
+// TODO: validate this works
+&gpio0 {
+	sx1262-dio3-hog {
+		gpio-hog;
+		gpios = <6 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
+};
