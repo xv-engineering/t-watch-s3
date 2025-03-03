@@ -253,7 +253,7 @@
 		spi-max-frequency = <DT_FREQ_M(10)>;
 		reset-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
 		busy-gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
-		dio1-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+		dio1-gpios = <&gpio0 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
 
 		// These values should *not* be necessary. According to the schematic
 		// DIO3 is not powering any tcxo (oscillator), but without these values
