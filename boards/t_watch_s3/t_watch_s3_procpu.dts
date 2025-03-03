@@ -254,16 +254,12 @@
 		reset-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
 		busy-gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
 		dio1-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+
+		// These values should *not* be necessary. According to the schematic
+		// DIO3 is not powering any tcxo (oscillator), but without these values
+		// the device simply locks up on transmission. Investigate further.
 		dio3-tcxo-voltage = <SX126X_DIO3_TCXO_3V3>;
 		tcxo-power-startup-delay-ms = <5>;
 	};
 };
 
-// TODO: validate this works
-&gpio0 {
-	sx1262-dio3-hog {
-		gpio-hog;
-		gpios = <6 GPIO_ACTIVE_HIGH>;
-		output-high;
-	};
-};
