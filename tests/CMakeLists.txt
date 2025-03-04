@@ -17,4 +17,5 @@ target_sources(app PRIVATE
     src/button.c
     src/charger.c
     src/fuel_gauge.c
+    src/lora.c
 )
