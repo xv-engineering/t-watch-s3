@@ -63,7 +63,6 @@ manifest:
       remote: vvvvvvvvvv-llc
       repo-path: t-watch-s3
       revision: main
-      import: true
 ```
 
 > [!NOTE] 
