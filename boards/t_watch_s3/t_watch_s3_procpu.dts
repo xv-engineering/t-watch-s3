@@ -255,9 +255,9 @@
 		busy-gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
 		dio1-gpios = <&gpio0 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
 
-		// These values should *not* be necessary. According to the schematic
-		// DIO3 is not powering any tcxo (oscillator), but without these values
-		// the device simply locks up on transmission. Investigate further.
+		// BUG (#22): These values should *not* be necessary. According to the schematic
+		// DIO3 is not powering any tcxo (oscillator), but without these values the
+		// device simply locks up on transmission. Investigate further.
 		dio3-tcxo-voltage = <SX126X_DIO3_TCXO_3V3>;
 		tcxo-power-startup-delay-ms = <5>;
 	};
