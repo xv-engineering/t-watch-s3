@@ -4,20 +4,20 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
 
-static uint8_t dev_eui[] = {0xE5, 0x03, 0x67, 0x53, 0xB2, 0x07, 0xCC, 0x1B};
-static uint8_t app_eui[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static uint8_t app_skey[] = {0x84, 0x10, 0xE5, 0xA8, 0xEF, 0xA1, 0xA2, 0x1A, 0xD0, 0xEF, 0xFF, 0xD0, 0x08, 0x5A, 0x89, 0x91};
-static uint8_t nwk_skey[] = {0x68, 0x6D, 0x92, 0x21, 0x1E, 0xF0, 0x72, 0xD9, 0x5A, 0xF8, 0x4B, 0xC5, 0x30, 0x7A, 0x97, 0x25};
-static const uint32_t dev_addr = 0x78000007;
+static uint8_t dev_eui[] = {0xDD, 0xEE, 0xAA, 0xDD, 0xBB, 0xEE, 0xEE, 0xFF};
+static uint8_t join_eui[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static uint8_t app_key[] = {0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C};
 
-static const struct lorawan_join_config join_cfg = {
+static struct lorawan_join_config join_cfg = {
     .dev_eui = &dev_eui[0],
-    .mode = LORAWAN_ACT_ABP,
-    .abp = {
-        .app_eui = &app_eui[0],
-        .app_skey = &app_skey[0],
-        .nwk_skey = &nwk_skey[0],
-        .dev_addr = dev_addr,
+    .mode = LORAWAN_ACT_OTAA,
+    .otaa = {
+        .app_key = &app_key[0],
+        .join_eui = &join_eui[0],
+        .nwk_key = &app_key[0],
+        // you may need to manually increase this or reset
+        // the join counter within your network console.
+        .dev_nonce = 2000,
     },
 };
 
@@ -33,9 +33,19 @@ ZTEST(lorawan, test_lorawan_init)
     zassert_equal(ret, 0, "Lora start failed (%d)", ret);
 
     ret = lorawan_join(&join_cfg);
-    zassert_equal(ret, 0, "Lora join failed (%d)", ret);
+    // the first join always(?) fails. Unclear if this is a bug, the RP doc
+    // seems to suggest that you should try again, and internally the loramac
+    // node library will shift to a different channel.
+    if (ret < 0)
+    {
+        LOG_ERR("lorawan_join_network failed, trying again: %d", ret);
+        // the second join seems to (almost) always succeed
+        join_cfg.otaa.dev_nonce++;
+        ret = lorawan_join(&join_cfg);
+        zassert_equal(ret, 0, "Lora join failed (%d)", ret);
+    }
 
-    uint8_t payload[] = "Hello, world!";
+    uint8_t payload[] = "Hello";
     ret = lorawan_send(0, payload, sizeof(payload), LORAWAN_MSG_CONFIRMED);
     zassert_equal(ret, 0, "Lora send failed (%d)", ret);
 }
