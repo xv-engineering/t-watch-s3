@@ -18,4 +18,5 @@ target_sources(app PRIVATE
     src/charger.c
     src/fuel_gauge.c
     src/lora.c
+    src/lorawan.c
 )
