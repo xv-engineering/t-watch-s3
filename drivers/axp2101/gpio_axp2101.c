@@ -32,7 +32,7 @@ struct gpio_axp2101_data
 
     // for receiving the interrupt from the axp2101
     struct gpio_callback gpio_cb;
-    struct k_sem sem;
+    struct k_work work;
     const struct device *self;
 
     // for generating new callbacks when the appropriate
@@ -175,76 +175,73 @@ static const struct gpio_driver_api gpio_axp2101_driver_api = {
     .get_pending_int = gpio_axp2101_get_pending_int,
 };
 
-static void gpio_axp2101_thread(void *d, void *, void *)
+static void gpio_axp2101_int_work(struct k_work *work)
 {
-    struct gpio_axp2101_data *data = d;
+    struct gpio_axp2101_data *data = CONTAINER_OF(work, struct gpio_axp2101_data, work);
     const struct device *dev = data->self;
     const struct gpio_axp2101_config *config = dev->config;
 
-    while (1)
+    LOG_INST_DBG(config->log, "Interrupt received");
+
+    // we are only interested in the EDGE interrupt flags. Any other flags
+    // are not the responsibility of the GPIO node.
+    const uint8_t flag_mask = AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE |
+                              AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE;
+    uint8_t irq_status;
+    int ret = i2c_reg_read_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &irq_status);
+    if (ret < 0)
     {
-        k_sem_take(&data->sem, K_FOREVER);
-        LOG_INST_DBG(config->log, "Interrupt received");
+        LOG_INST_ERR(config->log, "Could not read IRQ status: %d", ret);
+        return;
+    }
 
-        // we are only interested in the EDGE interrupt flags. Any other flags
-        // are not the responsibility of the GPIO node.
-        const uint8_t flag_mask = AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE |
-                                  AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE;
-        uint8_t irq_status;
-        int ret = i2c_reg_read_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, &irq_status);
-        if (ret < 0)
+    if (irq_status & flag_mask)
+    {
+        if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE)
         {
-            LOG_INST_ERR(config->log, "Could not read IRQ status: %d", ret);
-            continue;
+            data->raw = false;
         }
-        if (irq_status & flag_mask)
+        if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE)
         {
-            if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_NEGATIVE_EDGE)
-            {
-                data->raw = false;
-            }
-            if (irq_status & AXP2101_IRQ_STATUS_1_MASK_PWRON_POSITIVE_EDGE)
-            {
-                data->raw = true;
-            }
+            data->raw = true;
         }
+    }
 
-        // clear only the edge flags
-        ret = i2c_reg_write_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, flag_mask);
-        if (ret < 0)
-        {
-            LOG_INST_ERR(config->log, "Could not clear IRQ status: %d", ret);
-            continue;
-        }
+    // clear only the edge flags
+    ret = i2c_reg_write_byte_dt(&config->i2c, AXP2101_IRQ_STATUS_1_REG, flag_mask);
+    if (ret < 0)
+    {
+        LOG_INST_ERR(config->log, "Could not clear IRQ status: %d", ret);
+        return;
+    }
 
-        // handle the callbacks as appropriate
-        bool should_fire = false;
-        if (data->int_mode == GPIO_INT_MODE_EDGE)
+    // handle the callbacks as appropriate
+    bool should_fire = false;
+    if (data->int_mode == GPIO_INT_MODE_EDGE)
+    {
+        if (data->int_trig == GPIO_INT_TRIG_BOTH)
         {
-            if (data->int_trig == GPIO_INT_TRIG_BOTH)
-            {
-                should_fire = true;
-            }
-            else if (data->int_trig == GPIO_INT_TRIG_LOW)
-            {
-                should_fire = !data->raw;
-            }
-            else if (data->int_trig == GPIO_INT_TRIG_HIGH)
-            {
-                should_fire = data->raw;
-            }
+            should_fire = true;
         }
-
-        if (should_fire)
+        else if (data->int_trig == GPIO_INT_TRIG_LOW)
         {
-            struct gpio_callback *cb, *tmp;
-            SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&data->cb, cb, tmp, node)
+            should_fire = !data->raw;
+        }
+        else if (data->int_trig == GPIO_INT_TRIG_HIGH)
+        {
+            should_fire = data->raw;
+        }
+    }
+
+    if (should_fire)
+    {
+        struct gpio_callback *cb, *tmp;
+        SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&data->cb, cb, tmp, node)
+        {
+            if (cb->pin_mask & BIT(0))
             {
-                if (cb->pin_mask & BIT(0))
-                {
-                    __ASSERT(cb->handler, "No callback handler!");
-                    cb->handler(dev, cb, cb->pin_mask & BIT(0));
-                }
+                __ASSERT(cb->handler, "No callback handler!");
+                cb->handler(dev, cb, cb->pin_mask & BIT(0));
             }
         }
     }
@@ -255,7 +252,7 @@ static void gpio_axp2101_interrupt_callback(const struct device *port,
                                             gpio_port_pins_t pins)
 {
     struct gpio_axp2101_data *data = CONTAINER_OF(cb, struct gpio_axp2101_data, gpio_cb);
-    k_sem_give(&data->sem);
+    k_work_submit(&data->work);
 }
 
 static int gpio_axp2101_init(const struct device *dev)
@@ -279,22 +276,20 @@ static int gpio_axp2101_init(const struct device *dev)
     return 0;
 }
 
-#define GPIO_AXP2101_DEFINE(inst)                                                        \
-    LOG_INSTANCE_REGISTER(gpio_axp2101, inst, CONFIG_AXP2101_LOG_LEVEL);                 \
-    static const struct gpio_axp2101_config config##inst = {                             \
-        .drv_cfg = {                                                                     \
-            .port_pin_mask = GPIO_PORT_PIN_MASK_FROM_DT_INST(inst),                      \
-        },                                                                               \
-        .int_gpio = GPIO_DT_SPEC_GET(DT_INST_PARENT(inst), int_gpios),                   \
-        .i2c = I2C_DT_SPEC_GET(DT_INST_PARENT(inst)),                                    \
-        LOG_INSTANCE_PTR_INIT(log, gpio_axp2101, inst)};                                 \
-    static struct gpio_axp2101_data data##inst = {                                       \
-        .sem = Z_SEM_INITIALIZER(data##inst.sem, 0, 1),                                  \
-        .raw = DT_INST_PROP(inst, initial_state_high),                                   \
-    };                                                                                   \
-    K_THREAD_DEFINE(gpio_axp2101_thread_##inst, 1024, gpio_axp2101_thread, &data##inst,  \
-                    NULL, NULL, K_PRIO_COOP(CONFIG_GPIO_AXP2101_THREAD_PRIORITY), 0, 0); \
-    DEVICE_DT_INST_DEFINE(inst, gpio_axp2101_init, NULL, &data##inst, &config##inst,     \
+#define GPIO_AXP2101_DEFINE(inst)                                                    \
+    LOG_INSTANCE_REGISTER(gpio_axp2101, inst, CONFIG_AXP2101_LOG_LEVEL);             \
+    static const struct gpio_axp2101_config config##inst = {                         \
+        .drv_cfg = {                                                                 \
+            .port_pin_mask = GPIO_PORT_PIN_MASK_FROM_DT_INST(inst),                  \
+        },                                                                           \
+        .int_gpio = GPIO_DT_SPEC_GET(DT_INST_PARENT(inst), int_gpios),               \
+        .i2c = I2C_DT_SPEC_GET(DT_INST_PARENT(inst)),                                \
+        LOG_INSTANCE_PTR_INIT(log, gpio_axp2101, inst)};                             \
+    static struct gpio_axp2101_data data##inst = {                                   \
+        .raw = DT_INST_PROP(inst, initial_state_high),                               \
+        .work = Z_WORK_INITIALIZER(gpio_axp2101_int_work),                           \
+    };                                                                               \
+    DEVICE_DT_INST_DEFINE(inst, gpio_axp2101_init, NULL, &data##inst, &config##inst, \
                           POST_KERNEL, CONFIG_GPIO_AXP2101_INIT_PRIORITY, &gpio_axp2101_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(GPIO_AXP2101_DEFINE)
