@@ -31,9 +31,9 @@ struct gpio_axp2101_data
     struct gpio_driver_data common;
 
     // for receiving the interrupt from the axp2101
+    const struct device *dev;
     struct gpio_callback gpio_cb;
     struct k_work work;
-    const struct device *self;
 
     // for generating new callbacks when the appropriate
     // interrupt from the axp2101 occurs
@@ -178,7 +178,7 @@ static const struct gpio_driver_api gpio_axp2101_driver_api = {
 static void gpio_axp2101_int_work(struct k_work *work)
 {
     struct gpio_axp2101_data *data = CONTAINER_OF(work, struct gpio_axp2101_data, work);
-    const struct device *dev = data->self;
+    const struct device *dev = data->dev;
     const struct gpio_axp2101_config *config = dev->config;
 
     LOG_INST_DBG(config->log, "Interrupt received");
@@ -259,7 +259,6 @@ static int gpio_axp2101_init(const struct device *dev)
 {
     struct gpio_axp2101_data *data = dev->data;
     const struct gpio_axp2101_config *config = dev->config;
-    data->self = dev;
 
     CHECK_OK(gpio_pin_configure_dt(&config->int_gpio, GPIO_INPUT | GPIO_ACTIVE_LOW), config->log);
     CHECK_OK(gpio_pin_interrupt_configure_dt(&config->int_gpio, GPIO_INT_EDGE_TO_ACTIVE), config->log);
@@ -286,6 +285,7 @@ static int gpio_axp2101_init(const struct device *dev)
         .i2c = I2C_DT_SPEC_GET(DT_INST_PARENT(inst)),                                \
         LOG_INSTANCE_PTR_INIT(log, gpio_axp2101, inst)};                             \
     static struct gpio_axp2101_data data##inst = {                                   \
+        .dev = DEVICE_DT_INST_GET(inst),                                             \
         .raw = DT_INST_PROP(inst, initial_state_high),                               \
         .work = Z_WORK_INITIALIZER(gpio_axp2101_int_work),                           \
     };                                                                               \
