@@ -106,14 +106,14 @@ static int patched_bma4xx_decoder_decode(const uint8_t *buffer, struct sensor_ch
     }
 
     // the original decoding method assumes that the values in the buffer
-    // are 16-bit. On the bma422, they are actually 12-bit 2's complement.
+    // are 16-bit. On the bma423, they are actually 12-bit 2's complement.
     // So, if we see that we are decoding SENSOR_CHAN_ACCEL_XYZ, then we
     // need to copy and change the buffer.
     return original_decode((const uint8_t *)&edata, ch, fit, max_count, data_out);
 }
 
 // The current bma4xx driver does not correctly decode the IMU values. It makes
-// an assumption that the values coming off of the device are 16 bit. On the bma422
+// an assumption that the values coming off of the device are 16 bit. On the bma423
 // they are actually 12-bit, two's complement. In-tree, this can be fixed by adding
 // a simple conversion from 12 to 16 bit 2's complement in `bma4xx_one_shot_decode`
 // but in the interest in keeping this out-of-tree, we essentially patch in a different
@@ -121,7 +121,7 @@ static int patched_bma4xx_decoder_decode(const uint8_t *buffer, struct sensor_ch
 //
 // This is definitely undefined behavior (writing to a field of a const struct)
 // but it is actually working (for now, but be weary).
-int bma422_hot_patch_decoder(void)
+int bma423_hot_patch_decoder(void)
 {
     const struct device *dev = DEVICE_DT_GET(DT_ALIAS(accel));
     const struct sensor_decoder_api *original;
@@ -140,5 +140,5 @@ int bma422_hot_patch_decoder(void)
 }
 
 SYS_INIT(t_watch_force_reset_imu, POST_KERNEL, CONFIG_T_WATCH_S3_IMU_HACKS_PRIORITY);
-SYS_INIT(bma422_hot_patch_decoder, PRE_KERNEL_1, 0);
+SYS_INIT(bma423_hot_patch_decoder, PRE_KERNEL_1, 0);
 SYS_INIT(t_watch_s3_display_on, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
