@@ -2,6 +2,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/rtio/rtio.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/version.h>
 LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
 
 // Define RTIO context with a small pool for our one-shot reads
@@ -9,8 +10,16 @@ RTIO_DEFINE_WITH_MEMPOOL(imu_rtio, 1, 1, 1, 16, sizeof(void *));
 SENSOR_DT_READ_IODEV(imu_iodev, DT_ALIAS(accel),
                      {SENSOR_CHAN_ACCEL_XYZ, 0});
 
+// Available in Zephyr 4.1
+#if ZEPHYR_VERSION_CODE >= ZEPHYR_VERSION(4, 1, 0)
+#warning "Zephyr 4.1 contains the Z_SHIFT_Q31_TO_F32 macro, remove this"
+#else
+#define Z_SHIFT_Q31_TO_F32(src, m) ((float32_t)(((int64_t)src) << m) / (float32_t)(1U << 31))
+#endif
+
 ZTEST(imu, test_imu)
 {
+    LOG_PRINTK("This test assumes the watch is laying screen-up on a flat surface\n");
     const struct device *imu = DEVICE_DT_GET(DT_ALIAS(accel));
     zassert_true(device_is_ready(imu), "IMU device is not ready");
 
@@ -41,17 +50,26 @@ ZTEST(imu, test_imu)
 
     struct sensor_three_axis_data accel_data;
     uint32_t fit = 0;
-    res = decoder->decode(buf, (struct sensor_chan_spec){SENSOR_CHAN_ACCEL_XYZ, 0}, &fit, 1, &accel_data);
+    const struct sensor_chan_spec ch_spec = {.chan_idx = 0, .chan_type = SENSOR_CHAN_ACCEL_XYZ};
+    res = decoder->decode(buf, ch_spec, &fit, 1, &accel_data);
     rtio_release_buffer(&imu_rtio, buf, buf_len);
     zassert_equal(fit, 1, "Fit is not 1");
     zassert_equal(res, 1, "Decode failed");
 
     LOG_INF("Accel data: %" PRIsensor_three_axis_data "\n", PRIsensor_three_axis_data_arg(accel_data, 0));
-    zassert_true(accel_data.readings[0].x > 0, "X is not positive");
-    zassert_true(accel_data.readings[0].y > 0, "Y is not positive");
-    zassert_true(accel_data.readings[0].z > 0, "Z is not positive");
 
-    ztest_test_pass();
+    double x = Z_SHIFT_Q31_TO_F32(accel_data.readings[0].x, accel_data.shift);
+    double y = Z_SHIFT_Q31_TO_F32(accel_data.readings[0].y, accel_data.shift);
+    double z = Z_SHIFT_Q31_TO_F32(accel_data.readings[0].z, accel_data.shift);
+
+    // nominally 0
+    zassert_between_inclusive(x, -0.5, 0.5, "X acceleration is too high");
+
+    // nominally 0
+    zassert_between_inclusive(y, -0.5, 0.5, "Y acceleration is too high");
+
+    // nominally -9.81
+    zassert_between_inclusive(z, -10.3, -9.3, "Z acceleration is too high");
 }
 
 ZTEST_SUITE(imu, NULL, NULL, NULL, NULL, NULL);
