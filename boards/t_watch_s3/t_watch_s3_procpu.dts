@@ -120,7 +120,6 @@
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 
-	// external button referred labeled SW7 on schematic
 	pmic: axp2101@34 {
 		status = "okay";
 		compatible = "x-powers,axp2101";

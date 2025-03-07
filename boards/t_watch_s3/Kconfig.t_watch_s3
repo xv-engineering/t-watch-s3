@@ -12,11 +12,11 @@ config T_WATCH_S3_BACKLIGHT_BOOT_ON
 	help
 		Enable backlight on boot.
 
-config T_WATCH_S3_RESET_IMU_HACK_PRIORITY
-	int "Workaround for bma4xx oddness"
+config T_WATCH_S3_IMU_HACKS_PRIORITY
+	int "Workarounds for bma4xx oddness"
 	default 55
 	help
-		Priority for resetting the IMU.
+		Priority for workarounds for bma4xx driver oddness.
 
 module = T_WATCH_S3
 module-str = t_watch_s3
