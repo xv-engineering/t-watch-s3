@@ -12,12 +12,6 @@ config T_WATCH_S3_BACKLIGHT_BOOT_ON
 	help
 		Enable backlight on boot.
 
-config T_WATCH_S3_IMU_HACKS_PRIORITY
-	int "Workarounds for bma4xx oddness"
-	default 55
-	help
-		Priority for workarounds for bma4xx driver oddness.
-
 module = T_WATCH_S3
 module-str = t_watch_s3
 source "subsys/logging/Kconfig.template.log_config"

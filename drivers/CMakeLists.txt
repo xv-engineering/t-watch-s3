@@ -1,1 +1,2 @@
 add_subdirectory_ifdef(CONFIG_DT_HAS_X_POWERS_AXP2101_ENABLED axp2101)
+add_subdirectory_ifdef(CONFIG_DT_HAS_BOSCH_BMA4XX_ENABLED bma4xx)
