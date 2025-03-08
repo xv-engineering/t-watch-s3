@@ -1,0 +1,20 @@
+config BMA4XX_BOOT_RESET_HACK
+	bool "Reset the BMA4XX on boot"
+	depends on DT_HAS_BOSCH_BMA4XX_ENABLED
+	help
+		Reset the BMA423 on boot (works around a bug in the driver).
+
+
+config BMA4XX_BOOT_RESET_HACK_PRIORITY
+	int "Boot reset priority"
+	default 55
+	depends on BMA4XX_BOOT_RESET_HACK
+	help
+		Priority for the boot reset.
+
+config BMA4XX_DECODER_PATCH_HACK
+	bool "Patch the BMA4XX decoder"
+	depends on DT_HAS_BOSCH_BMA4XX_ENABLED
+	help
+		Patch the BMA4XX decoder to work around a conversion bug
+		where a 12-bit integer is incorrectly treated as a 16-bit.
