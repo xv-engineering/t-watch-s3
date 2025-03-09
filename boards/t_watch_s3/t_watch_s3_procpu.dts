@@ -263,3 +263,11 @@
 	};
 };
 
+
+&wifi {
+	status = "okay";
+};
+
+&trng0 {
+	status = "okay";
+};
