@@ -28,6 +28,7 @@
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
 		lora = &lora;
+		wifi = &wifi;
 	};
 
 	chosen {
@@ -57,7 +58,8 @@
 		};
 	};
 
-	// internal reset button referred labeled S1 on schematic
+	// internal reset button labeled S1 on schematic
+	// external button labeled SW7 on schematic
 	buttons: gpio_keys {
 		status = "okay";
 		compatible = "gpio-keys";
@@ -263,3 +265,11 @@
 	};
 };
 
+
+&wifi {
+	status = "okay";
+};
+
+&trng0 {
+	status = "okay";
+};

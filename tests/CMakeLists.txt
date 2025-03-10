@@ -20,4 +20,5 @@ target_sources(app PRIVATE
     src/lora.c
     src/lorawan.c
     src/flash.c
+    src/wifi.c
 )
