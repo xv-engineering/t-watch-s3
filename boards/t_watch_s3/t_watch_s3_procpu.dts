@@ -28,6 +28,7 @@
 		charger = &charger;
 		fuel-gauge = &fuel_gauge;
 		lora = &lora;
+		wifi = &wifi;
 	};
 
 	chosen {
