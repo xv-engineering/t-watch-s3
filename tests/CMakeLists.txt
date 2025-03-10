@@ -21,4 +21,5 @@ target_sources(app PRIVATE
     src/lorawan.c
     src/flash.c
     src/wifi.c
+    src/bluetooth.c
 )

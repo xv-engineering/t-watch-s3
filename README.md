@@ -28,22 +28,22 @@ The following features are not yet supported/tested:
 - [x] [battery management](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/11)
 > [!CAUTION] 
 > **Battery management has not been validated in depth. It is possible this may over-charge or over-discharge the battery. Catastrophic damage could occur. You accept responsibility for this by using this code.**
-- [ ] [bluetooth](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/3)
-- [ ] [wifi](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/2)
+- [x] [bluetooth](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/3)
+- [x] [wifi](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/2)
 - [ ] [microphone](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/1)
 > [!NOTE] 
 > (PDM support over I2S is supported in the esp32 hal, but not surfaced to Zephyr)
 - [ ] [speaker](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/4)
 > [!NOTE]
 > The MAX98357 driver will need to be implemented
-- [ ] [LoRa radio](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/5)
-- [ ] [LoRaWAN support](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/6)
+- [x] [LoRa radio](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/5)
+- [x] [LoRaWAN support](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/6)
 > [!NOTE]
 > There is some work on enabling the LoRa Basics Modem. It may be worth waiting to do this.
 - [x] [external button](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/7)
 - [ ] [Infrared LED](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/8)
 - [x] [Realtime clock](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/9)
-- [ ] [SPI Flash Storage](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/10)
+- [x] [SPI Flash Storage](https://github.com/vvvvvvvvvv-LLC/t-watch-s3/issues/10)
 
 ## Getting Started ##
 
