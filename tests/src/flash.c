@@ -10,7 +10,6 @@ LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
 // with the flash memory.
 ZTEST(flash, test_flash_rw)
 {
-
     const struct device *flash = DEVICE_DT_GET(DT_CHOSEN(zephyr_flash_controller));
     zassert_true(device_is_ready(flash), "flash device not ready");
 

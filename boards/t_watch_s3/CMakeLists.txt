@@ -2,6 +2,7 @@ zephyr_library()
 
 zephyr_library_sources(
     t_watch_s3_boot.c
+    t_watch_s3_zephyr_ver.c
 )
 
 # if LoRa (specifically the soft secure element) and WiFi are both enabled, the symbol 
