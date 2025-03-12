@@ -6,7 +6,7 @@
 /dts-v1/;
 
 #include <espressif/esp32s3/esp32s3_r8.dtsi>
-#include <espressif/partitions_0x0_amp_8M.dtsi>
+#include <espressif/partitions_0x0_amp_16M.dtsi>
 #include "t_watch_s3-pinctrl.dtsi"
 #include <zephyr/dt-bindings/pwm/pwm.h>
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
@@ -86,7 +86,7 @@
 		display0: st7789v@0 {
 			compatible = "sitronix,st7789v";
 			status = "okay";
-			mipi-mode = <MIPI_DBI_MODE_SPI_4WIRE>;
+			mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
 			mipi-max-frequency = <DT_FREQ_M(80)>;
 			reg = <0>;
 			width = <240>;
@@ -272,4 +272,8 @@
 
 &trng0 {
 	status = "okay";
+};
+
+&flash0 {
+	reg = <0x0 DT_SIZE_M(16)>;
 };

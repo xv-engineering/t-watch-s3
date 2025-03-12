@@ -23,3 +23,7 @@ target_sources(app PRIVATE
     src/wifi.c
     src/bluetooth.c
 )
+
+
+# Needed for the 'zdsp_backend.h' dummy header file
+target_include_directories(app PRIVATE src)

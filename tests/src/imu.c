@@ -1,21 +1,15 @@
 #include <zephyr/ztest.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/rtio/rtio.h>
+#include <zephyr/dsp/utils.h>
+
 #include <zephyr/logging/log.h>
-#include <zephyr/version.h>
 LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
 
 // Define RTIO context with a small pool for our one-shot reads
 RTIO_DEFINE_WITH_MEMPOOL(imu_rtio, 1, 1, 1, 16, sizeof(void *));
 SENSOR_DT_READ_IODEV(imu_iodev, DT_ALIAS(accel),
                      {SENSOR_CHAN_ACCEL_XYZ, 0});
-
-// Available in Zephyr 4.1
-#if ZEPHYR_VERSION_CODE >= ZEPHYR_VERSION(4, 1, 0)
-#warning "Zephyr 4.1 contains the Z_SHIFT_Q31_TO_F32 macro, remove this"
-#else
-#define Z_SHIFT_Q31_TO_F32(src, m) ((float32_t)(((int64_t)src) << m) / (float32_t)(1U << 31))
-#endif
 
 ZTEST(imu, test_imu)
 {

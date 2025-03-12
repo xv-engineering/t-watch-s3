@@ -30,10 +30,9 @@ static void bt_ready_cb(int err)
 static void scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type,
                     struct net_buf_simple *ad)
 {
-    char addr_str[BT_ADDR_LE_STR_LEN];
-
-    bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
-    LOG_INF("Device found: %s (RSSI %d), adv_type: %u", addr_str, rssi, adv_type);
+    char addr_str[BT_ADDR_LE_STR_LEN] = {0};
+    size_t addr_len = bt_addr_le_to_str(addr, addr_str, sizeof(addr_str));
+    LOG_INF("Device found: %.*s (RSSI %d), adv_type: %u", addr_len, addr_str, rssi, adv_type);
 
     if (ad)
     {
@@ -54,13 +53,12 @@ ZTEST_F(bluetooth, test_scan)
         .window = BT_GAP_SCAN_FAST_WINDOW,
     };
 
-    // wait for up to 1 second for bluetooth to be enabled
-    int ret = WAIT_FOR(f->bt_enabled, 1000000, k_yield());
-    zassert_true(ret, "Bluetooth failed to initialize");
+    // the setup should've initialized bluetooth and waited for
+    // it to be ready.
     zassert_true(f->bt_enabled, "Bluetooth failed to initialize");
 
     // start scanning
-    ret = bt_le_scan_start(&scan_params, scan_cb);
+    int ret = bt_le_scan_start(&scan_params, scan_cb);
     zassert_equal(ret, 0, "Scanning failed to start (err %d)", ret);
     LOG_INF("Scanning started successfully");
 
@@ -93,6 +91,7 @@ static void *bluetooth_tests_setup(void)
     if (!bt_fixture.bt_enabled)
     {
         bt_enable(bt_ready_cb);
+        WAIT_FOR(bt_fixture.bt_enabled, 1000000, k_yield());
     }
     return &bt_fixture;
 }
@@ -100,6 +99,7 @@ static void *bluetooth_tests_setup(void)
 static void bluetooth_tests_before(void *fixture)
 {
     struct bluetooth_fixture *f = fixture;
+    f->bt_enabled = bt_is_ready();
     k_sem_reset(&f->scan_sem);
 }
 
