@@ -7,7 +7,7 @@
 LOG_MODULE_DECLARE(bringup, CONFIG_BRINGUP_LOG_LEVEL);
 
 // Define RTIO context with a small pool for our one-shot reads
-RTIO_DEFINE_WITH_MEMPOOL(imu_rtio, 2, 2, 2, 16, _Alignof(void *));
+RTIO_DEFINE_WITH_MEMPOOL(imu_rtio, 1, 1, 1, 16, sizeof(void *));
 SENSOR_DT_READ_IODEV(imu_iodev, DT_ALIAS(accel),
                      {SENSOR_CHAN_ACCEL_XYZ, 0});
 
