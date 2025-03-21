@@ -2,3 +2,5 @@ tests:
   t-watch-s3.bringup:
     platform_allow:
       - t_watch_s3/esp32s3/procpu
+    extra_configs:
+      - CONFIG_RUNNING_UNDER_CI=y

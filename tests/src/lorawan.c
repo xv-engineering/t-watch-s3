@@ -23,6 +23,14 @@ static struct lorawan_join_config join_cfg = {
 
 ZTEST(lorawan, test_lorawan_init)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        // This test isn't exactly interactive, but it does require
+        // a connection to a network, which I don't want to hardcode.
+        // So for now, this will just be skipped.
+        ztest_test_skip();
+    }
+
     // The device doesn't actually need to be named lora
     // under the aliases node. It is automatically used by the
     // loramac library simply by existing (via the `Radio` symbol)
