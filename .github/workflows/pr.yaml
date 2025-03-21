@@ -1,0 +1,50 @@
+name: Run Bringup Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: t-watch-s3
+
+      - name: Setup Zephyr project
+        uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: t-watch-s3
+          toolchains: xtensa-espressif_esp32s3_zephyr-elf
+      
+      - name: Export Zephyr CMake Package
+        run: |
+          west zephyr-export
+
+      - name: Fetch Espressif Blobs
+        run: |
+          west blobs fetch hal_espressif
+
+      - name: Run Twister Tests
+        run: >
+          west twister 
+            --device-testing 
+            --device-serial /dev/ttyACM0 
+            -p t_watch_s3/esp32s3/procpu 
+            -T t-watch-s3
+            --flash-before
+
+      - name: Sanitize artifact name
+        run: |
+          sanitized_name=$(echo "t_watch_s3_esp32s3_procpu_tests" | sed 's/\//_/g')
+          echo "SANITIZED_NAME=$sanitized_name" >> $GITHUB_ENV
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SANITIZED_NAME }}
+          path: |
+            ${{ github.workspace }}/build/zephyr/zephyr.bin
+            ${{ github.workspace }}/build/zephyr/zephyr.elf
