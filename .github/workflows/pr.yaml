@@ -26,7 +26,7 @@ jobs:
 
       - name: Initialize Project
         run: |
-          west init -l || true
+          west init -l t-watch-s3 || true
           west update
 
       - name: Install Dependencies
@@ -44,9 +44,8 @@ jobs:
            -p t_watch_s3/esp32s3/procpu -T t-watch-s3 --flash-before
       
       - name: Test Report
-        uses: dorny/test-reporter@v2
+        uses: EnricoMi/publish-unit-test-result-action/linux@v2
         if: always()
         with:
-          name: Twister Report
-          path: twister-out/twister_report.xml
-          reporter: dotnet-nunit
+          files: |
+            twister-out/twister_report.xml
