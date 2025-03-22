@@ -18,16 +18,17 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           echo PATH=$PATH >> $GITHUB_ENV
+          pip install west
 
-      - name: Setup Zephyr project
-        uses: zephyrproject-rtos/action-zephyr-setup@v1
-        with:
-          app-path: t-watch-s3
-          toolchains: xtensa-espressif_esp32s3_zephyr-elf
-      
-      - name: Export Zephyr CMake Package
+      - name: Initialize Project
+        run: |
+          west init -l
+          west update
+
+      - name: Install Dependencies
         run: |
           west zephyr-export
+          west packages pip --install
 
       - name: Fetch Espressif Blobs
         run: |
