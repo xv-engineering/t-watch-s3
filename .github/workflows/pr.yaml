@@ -1,5 +1,9 @@
 name: Run Bringup Tests
 
+# This script assumes the Zephyr SDK is already installed
+# on the target machine. If it is not, `west sdk install`
+# will take care of that for you.
+
 on:
   pull_request:
   workflow_dispatch:
@@ -22,7 +26,7 @@ jobs:
 
       - name: Initialize Project
         run: |
-          west init -l
+          west init -l || true
           west update
 
       - name: Install Dependencies
@@ -35,10 +39,14 @@ jobs:
           west blobs fetch hal_espressif
 
       - name: Run Twister Tests
-        run: >
-          west twister 
-            --device-testing 
-            --device-serial /dev/ttyACM0 
-            -p t_watch_s3/esp32s3/procpu 
-            -T t-watch-s3
-            --flash-before
+        run: |
+          west twister --device-testing --device-serial /dev/ttyACM0 \
+           -p t_watch_s3/esp32s3/procpu -T t-watch-s3 --flash-before
+      
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: Twister Report
+          path: twister-out/twister_report.xml
+          reporter: dotnet-nunit
