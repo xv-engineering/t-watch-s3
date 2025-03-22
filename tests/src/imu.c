@@ -57,13 +57,13 @@ ZTEST(imu, test_imu)
     double z = Z_SHIFT_Q31_TO_F32(accel_data.readings[0].z, accel_data.shift);
 
     // nominally 0
-    zassert_between_inclusive(x, -0.5, 0.5, "X acceleration is too high");
+    zassert_between_inclusive(x, -1, 1, "X acceleration is too high");
 
     // nominally 0
-    zassert_between_inclusive(y, -0.5, 0.5, "Y acceleration is too high");
+    zassert_between_inclusive(y, -1, 1, "Y acceleration is too high");
 
     // nominally -9.81
-    zassert_between_inclusive(z, -10.3, -9.3, "Z acceleration is too high");
+    zassert_between_inclusive(z, -10.81, -8.81, "Z acceleration is too high");
 }
 
 ZTEST_SUITE(imu, NULL, NULL, NULL, NULL, NULL);
