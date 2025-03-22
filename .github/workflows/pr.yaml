@@ -1,0 +1,51 @@
+name: Run Bringup Tests
+
+# This script assumes the Zephyr SDK is already installed
+# on the target machine. If it is not, `west sdk install`
+# will take care of that for you.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: t-watch-s3
+      
+      - name: Setup and Activate Python Environment
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+          pip install west
+
+      - name: Initialize Project
+        run: |
+          west init -l t-watch-s3 || true
+          west update
+
+      - name: Install Dependencies
+        run: |
+          west zephyr-export
+          west packages pip --install
+
+      - name: Fetch Espressif Blobs
+        run: |
+          west blobs fetch hal_espressif
+
+      - name: Run Twister Tests
+        run: |
+          west twister --device-testing --device-serial /dev/ttyACM0 \
+           -p t_watch_s3/esp32s3/procpu -T t-watch-s3 --flash-before
+      
+      - name: Test Report
+        uses: EnricoMi/publish-unit-test-result-action/linux@v2
+        if: always()
+        with:
+          files: |
+            twister-out/twister_report.xml

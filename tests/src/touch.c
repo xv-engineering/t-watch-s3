@@ -90,6 +90,11 @@ ZTEST(touch, test_touch_init)
 
 ZTEST_F(touch, test_touch_press)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        ztest_test_skip();
+    }
+
     struct touch_fixture *f = fixture;
     int ret;
     LOG_PRINTK("Scroll your finger across the screen\n");

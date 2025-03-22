@@ -33,6 +33,11 @@ ZTEST(lora, test_lora_send)
 
 ZTEST(lora, test_lora_receive)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        ztest_test_skip();
+    }
+
     LOG_PRINTK("This test expects test_lora_send to be run on another device\n");
     const struct device *lora = DEVICE_DT_GET(DT_ALIAS(lora));
     zassert_true(device_is_ready(lora), "Lora device not ready");

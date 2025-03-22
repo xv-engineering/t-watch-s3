@@ -46,6 +46,10 @@ static void button_callback(struct input_event *evt, void *user_data)
 
 ZTEST_F(button, test_power_button)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        ztest_test_skip();
+    }
     struct button_fixture *f = fixture;
     int ret;
     LOG_PRINTK("Short-Press the external button twice\n");
@@ -67,6 +71,10 @@ ZTEST_F(button, test_power_button)
 
 ZTEST_F(button, test_internal_button)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        ztest_test_skip();
+    }
     struct button_fixture *f = fixture;
     int ret;
     LOG_PRINTK("Press the internal button twice\n");

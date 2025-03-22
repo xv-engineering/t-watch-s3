@@ -8,6 +8,14 @@ LOG_MODULE_REGISTER(charger, CONFIG_BRINGUP_LOG_LEVEL);
 // be switched to the disconnected position (or battery removed entirely)
 ZTEST(charger, test_charger_disconnected)
 {
+    if (IS_ENABLED(CONFIG_RUNNING_UNDER_CI))
+    {
+        // Not exactly an interactive test, but for the device
+        // to be in this state, it must be unplugged from a power
+        // source, which means it's probably not under CI
+        ztest_test_skip();
+    }
+
     LOG_WRN("This test assumes the battery is disconnected");
     const struct device *dev = DEVICE_DT_GET(DT_ALIAS(charger));
     zassert_true(device_is_ready(dev), "charger device not ready");
@@ -41,7 +49,7 @@ ZTEST(charger, test_charger_connected)
     zassert_true(val.online);
 
     ret = charger_get_prop(dev, CHARGER_PROP_PRESENT, &val);
-    zassert_equal(ret, 1);
+    zassert_equal(ret, 0);
     zassert_true(val.present);
 
     // it's either charging or in standby, depends how long

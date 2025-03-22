@@ -9,7 +9,7 @@ BUILD_ASSERT(IS_ENABLED(CONFIG_BT_OBSERVER));
 
 struct bluetooth_fixture
 {
-    int bt_enabled;
+    atomic_t bt_enabled;
     struct k_sem scan_sem;
 };
 
@@ -20,11 +20,12 @@ static struct bluetooth_fixture bt_fixture = {
     // of advertisements we expect, but good to have
     // it be a bit larger so there's some buffer.
     .scan_sem = Z_SEM_INITIALIZER(bt_fixture.scan_sem, 0, 5),
+    .bt_enabled = ATOMIC_INIT(0),
 };
 
 static void bt_ready_cb(int err)
 {
-    bt_fixture.bt_enabled = (err == 0);
+    atomic_set(&bt_fixture.bt_enabled, (err == 0));
 }
 
 static void scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type,
@@ -88,10 +89,12 @@ static void *bluetooth_tests_setup(void)
     // bt_disable, but we can't for now. And since we also shouldn't do
     // a double-enable, we only do an enable if the bt_fixture says that
     // we haven't been enabled yet.
-    if (!bt_fixture.bt_enabled)
+    //
+    // (BLE assert intc.c 222, param 00000008 ffffffed)
+    if (!atomic_get(&bt_fixture.bt_enabled))
     {
         bt_enable(bt_ready_cb);
-        WAIT_FOR(bt_fixture.bt_enabled, 1000000, k_yield());
+        WAIT_FOR(atomic_get(&bt_fixture.bt_enabled), 1000000, k_yield());
     }
     return &bt_fixture;
 }
@@ -99,7 +102,7 @@ static void *bluetooth_tests_setup(void)
 static void bluetooth_tests_before(void *fixture)
 {
     struct bluetooth_fixture *f = fixture;
-    f->bt_enabled = bt_is_ready();
+    atomic_set(&f->bt_enabled, bt_is_ready());
     k_sem_reset(&f->scan_sem);
 }
 

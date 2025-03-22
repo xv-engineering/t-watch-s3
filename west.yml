@@ -1,0 +1,17 @@
+manifest:
+  defaults:
+    remote: zephyrproject-rtos
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+  
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      import: true
+      repo-path: zephyr
+      revision: v4.1.0
+
+  self:
+    path: t-watch-s3
